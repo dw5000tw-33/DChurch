@@ -1,301 +1,295 @@
-
 <!DOCTYPE html>
-<html xmlns='http://www.w3.org/1999/xhtml' lang='' xml:lang=''>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
-	<meta charset='utf-8' />
-	<meta name='viewport' content='width=device-width, user-scalable=no' />
-	<title>ChurchInteractive_Hotspot_v3</title>
-	<style type='text/css'>
+  <meta charset="utf-8" />
+  <!-- 正確 viewport；含瀏海安全區 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ChurchInteractive_Hotspot_v3</title>
 
-  		:root{
- 		   --base: clamp(16px, 2.8vw, 20px);
-  	 	   --h1: clamp(22px, 5.6vw, 32px);
-  		   --h2: clamp(18px, 4.6vw, 26px);
- 		   --tap: 44px;
-		   --gap: 12px;
- 		 }
-		  html, body { font-size: var(--base); -webkit-text-size-adjust: 100%; }
-		  #canvas { width: 100vw; height: 100vh; display:block; outline:none; }
+  <style>
+    /* ===== 行動字級 + 可點區標準 ===== */
+    :root{
+      --base: clamp(16px, 2.8vw, 20px);
+      --h1: clamp(22px, 5.6vw, 32px);
+      --h2: clamp(18px, 4.6vw, 26px);
+      --tap: 44px;
+      --gap: 12px;
+    }
+    html, body { font-size: var(--base); -webkit-text-size-adjust: 100%; }
 
-		  /* 按鈕/連結：可點又清楚 */
-		  a, button, .tappable{
-		    min-height: var(--tap); min-width: var(--tap);
-		    padding: 10px 14px; border-radius: 12px;
-		    display: inline-flex; align-items: center; justify-content: center;
-		    text-decoration: none; touch-action: manipulation;
-		    -webkit-tap-highlight-color: transparent;
-		  }
+    body {
+      touch-action: none;
+      margin: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      border: 0 none;
+      padding: 0;
+      text-align: center;
+      background-color: black;
+    }
 
-		  /* 讓小連結變卡片列表（可套在你現有的 link 區塊外層） */
-		  .link-list{ display:grid; gap:12px; padding:12px; }
-		  .link-list a{
-		    display:flex; align-items:center; justify-content:space-between;
-		    padding:14px 16px; border-radius:14px; background:#fff;
-		    box-shadow:0 6px 18px rgba(0,0,0,.08);
-		    min-height: var(--tap);
-		  }
+    /* Godot 畫布滿版 */
+    #canvas {
+      display: block;
+      margin: 0;
+      color: white;
+      width: 100vw;
+      height: 100vh;
+      outline: none;
+    }
+    #canvas:focus { outline: none; }
 
-		body {
-			touch-action: none;
-			margin: 0;
-			height: 100%; 
-			background: #000;
-			overflow: hidden; 
-			border: 0 none;
-			padding: 0;
-			text-align: center;
-			background-color: black;
-		}
+    /* Godot 預設樣式（保留） */
+    .godot {
+      font-family: 'Noto Sans','Droid Sans',Arial,sans-serif;
+      color: #e0e0e0;
+      background-color: #3b3943;
+      background-image: linear-gradient(to bottom,#403e48,#35333c);
+      border: 1px solid #45434e;
+      box-shadow: 0 0 1px 1px #2f2d35;
+    }
 
-		#canvas {
-			display: block;
-			margin: 0;
-			color: white;
-			width: 100vw; 
-			height: 100vh;
-		}
+    /* 狀態區：讓載入/錯誤訊息在手機可讀 */
+    #status {
+      position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+      display: flex; justify-content: center; align-items: center;
+      visibility: hidden; /* 子元素自行顯示 */
+    }
+    #status-progress {
+      width: 366px; height: 7px; background-color: #38363A;
+      border: 1px solid #444246; padding: 1px;
+      box-shadow: 0 0 2px 1px #1B1C22; border-radius: 2px; visibility: visible;
+    }
+    @media only screen and (orientation:portrait) { #status-progress { width: 61.8%; } }
+    #status-progress-inner {
+      height: 100%; width: 0; box-sizing: border-box; transition: width .5s linear;
+      background-color: #202020; border: 1px solid #222223; box-shadow: 0 0 1px 1px #27282E; border-radius: 3px;
+    }
+    #status-indeterminate { height: 42px; visibility: visible; position: relative; }
+    #status-indeterminate > div {
+      width: 4.5px; height: 0; border-style: solid; border-width: 9px 3px 0 3px;
+      border-color: #2b2b2b transparent transparent transparent; transform-origin: center 21px; position: absolute;
+    }
+    #status-indeterminate > div:nth-child(1) { transform: rotate( 22.5deg); }
+    #status-indeterminate > div:nth-child(2) { transform: rotate( 67.5deg); }
+    #status-indeterminate > div:nth-child(3) { transform: rotate(112.5deg); }
+    #status-indeterminate > div:nth-child(4) { transform: rotate(157.5deg); }
+    #status-indeterminate > div:nth-child(5) { transform: rotate(202.5deg); }
+    #status-indeterminate > div:nth-child(6) { transform: rotate(247.5deg); }
+    #status-indeterminate > div:nth-child(7) { transform: rotate(292.5deg); }
+    #status-indeterminate > div:nth-child(8) { transform: rotate(337.5deg); }
 
-		#canvas:focus {
-			outline: none;
-		}
+    /* 放大 & 提升對比：關鍵！ */
+    #status-notice {
+      margin: 0 24px; line-height: 1.4; padding: 6px 8px;
+      font-size: clamp(18px, 4.6vw, 24px) !important;
+      color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.6);
+      visibility: visible;
+    }
 
-		.godot {
-			font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
-			color: #e0e0e0;
-			background-color: #3b3943;
-			background-image: linear-gradient(to bottom, #403e48, #35333c);
-			border: 1px solid #45434e;
-			box-shadow: 0 0 1px 1px #2f2d35;
-		}
+    /* 通用可點元素：最小 44px */
+    a, button, .tappable{
+      min-height: var(--tap); min-width: var(--tap);
+      padding: 10px 14px; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
 
+    /* （選用）把一串小連結包成卡片清單時用 */
+    .link-list{ display:grid; gap:12px; padding:12px; }
+    .link-list a{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 16px; border-radius:14px; background:#fff;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      min-height: var(--tap);
+    }
 
-		/* Status display
-		 * ============== */
+    /* ===== HUD：HTML 浮層（蓋在 canvas 上） ===== */
+    .hud{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; z-index:9998;}
+    .hud.show{display:flex;}
+    .hud-backdrop{position:absolute; inset:0; background:rgba(0,0,0,.45);}
+    .hud-card{
+      position:relative; z-index:1; margin:16px; width:min(680px, 92vw);
+      background:#fff; border:2px solid #1F5FBF; border-radius:16px;
+      box-shadow:0 10px 26px rgba(0,0,0,.24);
+    }
+    .hud-body{padding:18px 16px 12px 16px;}
+    .hud-title{font-size:clamp(20px,5.2vw,28px); font-weight:800; color:#0b1645; margin:0 0 8px;}
+    .hud-text{font-size:clamp(16px,4.6vw,22px); line-height:1.6; color:#111;}
+    .hud-actions{display:flex; gap:10px; padding:0 16px 14px 16px;}
+    .btn{flex:1 1 auto; min-height:48px; border-radius:12px; border:0; font-weight:800; cursor:pointer}
+    .btn-primary{background:#06C755; color:#fff;}
+    .btn-ghost{background:#f1f3f5; color:#111;}
+  </style>
 
-		#status {
-			position: absolute;
-			left: 0;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			/* don't consume click events - make children visible explicitly */
-			visibility: hidden;
-		}
-
-		#status-progress {
-			width: 366px;
-			height: 7px;
-			background-color: #38363A;
-			border: 1px solid #444246;
-			padding: 1px;
-			box-shadow: 0 0 2px 1px #1B1C22;
-			border-radius: 2px;
-			visibility: visible;
-		}
-
-		@media only screen and (orientation:portrait) {
-			#status-progress {
-				width: 61.8%;
-			}
-		}
-
-		#status-progress-inner {
-			height: 100%;
-			width: 0;
-			box-sizing: border-box;
-			transition: width 0.5s linear;
-			background-color: #202020;
-			border: 1px solid #222223;
-			box-shadow: 0 0 1px 1px #27282E;
-			border-radius: 3px;
-		}
-
-		#status-indeterminate {
-			height: 42px;
-			visibility: visible;
-			position: relative;
-		}
-
-		#status-indeterminate > div {
-			width: 4.5px;
-			height: 0;
-			border-style: solid;
-			border-width: 9px 3px 0 3px;
-			border-color: #2b2b2b transparent transparent transparent;
-			transform-origin: center 21px;
-			position: absolute;
-		}
-
-		#status-indeterminate > div:nth-child(1) { transform: rotate( 22.5deg); }
-		#status-indeterminate > div:nth-child(2) { transform: rotate( 67.5deg); }
-		#status-indeterminate > div:nth-child(3) { transform: rotate(112.5deg); }
-		#status-indeterminate > div:nth-child(4) { transform: rotate(157.5deg); }
-		#status-indeterminate > div:nth-child(5) { transform: rotate(202.5deg); }
-		#status-indeterminate > div:nth-child(6) { transform: rotate(247.5deg); }
-		#status-indeterminate > div:nth-child(7) { transform: rotate(292.5deg); }
-		#status-indeterminate > div:nth-child(8) { transform: rotate(337.5deg); }
-
-		#status-notice {
-			margin: 0 100px;
-			line-height: 1.3;
-			visibility: visible;
-			padding: 4px 6px;
-			visibility: visible;
-		}
-	</style>
-<link rel='manifest' href='index.manifest.json'>
-
+  <link rel="manifest" href="index.manifest.json">
 </head>
+
 <body>
-	<script>
-	(function(){
-	  // 自動放大小於 44px 的 a/button 點擊區
-	  const MIN = 44;
-	  function inflate(el){
-	    const r = el.getBoundingClientRect();
-	    if (r.width < MIN || r.height < MIN){
-	      el.style.display = 'inline-flex';
-	      el.style.alignItems = 'center';
-	      el.style.justifyContent = 'center';
-	      el.style.padding = '10px 12px';
-	      el.style.minWidth = MIN + 'px';
-	      el.style.minHeight = MIN + 'px';
-	      el.style.borderRadius = '10px';
-	      el.style.textDecoration = 'none';
-	    }
-	  }
-	  document.querySelectorAll('a:not([data-no-inflate]), button').forEach(inflate);
-	})();
-	</script>
-	<canvas id='canvas'>
-		HTML5 canvas appears to be unsupported in the current browser.<br />
-		Please try updating or use a different browser.
-	</canvas>
-	<div id='status'>
-		<div id='status-progress' style='display: none;' oncontextmenu='event.preventDefault();'><div id ='status-progress-inner'></div></div>
-		<div id='status-indeterminate' style='display: none;' oncontextmenu='event.preventDefault();'>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-			<div></div>
-		</div>
-		<div id='status-notice' class='godot' style='display: none;'></div>
-	</div>
+  <!-- 自動把過小的 a/button 放大到 44px（初始化一次即可） -->
+  <script>
+    (function(){
+      const MIN = 44;
+      function inflate(el){
+        const r = el.getBoundingClientRect();
+        if (r.width < MIN || r.height < MIN){
+          el.style.display = 'inline-flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+          el.style.padding = '10px 12px';
+          el.style.minWidth = MIN + 'px';
+          el.style.minHeight = MIN + 'px';
+          el.style.borderRadius = '10px';
+          el.style.textDecoration = 'none';
+        }
+      }
+      document.addEventListener('DOMContentLoaded', ()=>{
+        document.querySelectorAll('a:not([data-no-inflate]), button').forEach(inflate);
+      });
+    })();
+  </script>
 
-	<script type='text/javascript' src='index.js'></script>
-	<script type='text/javascript'>//<![CDATA[
+  <!-- Godot Canvas -->
+  <canvas id="canvas">
+    HTML5 canvas appears to be unsupported in the current browser.<br />
+    Please try updating or use a different browser.
+  </canvas>
 
-		const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":23780992,"index.wasm":25590391},"focusCanvas":true,"gdnativeLibs":[],"serviceWorker":"index.service.worker.js"};
-		var engine = new Engine(GODOT_CONFIG);
+  <!-- Godot 狀態區（保留） -->
+  <div id="status">
+    <div id="status-progress" style="display:none;" oncontextmenu="event.preventDefault();"><div id="status-progress-inner"></div></div>
+    <div id="status-indeterminate" style="display:none;" oncontextmenu="event.preventDefault();">
+      <div></div><div></div><div></div><div></div>
+      <div></div><div></div><div></div><div></div>
+    </div>
+    <div id="status-notice" class="godot" style="display:none;"></div>
+  </div>
 
-		(function() {
-			const INDETERMINATE_STATUS_STEP_MS = 100;
-			var statusProgress = document.getElementById('status-progress');
-			var statusProgressInner = document.getElementById('status-progress-inner');
-			var statusIndeterminate = document.getElementById('status-indeterminate');
-			var statusNotice = document.getElementById('status-notice');
+  <!-- Godot 核心腳本（原樣保留） -->
+  <script type="text/javascript" src="index.js"></script>
+  <script>
+    //<![CDATA[
+    const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":23780992,"index.wasm":25590391},"focusCanvas":true,"gdnativeLibs":[],"serviceWorker":"index.service.worker.js"};
+    var engine = new Engine(GODOT_CONFIG);
 
-			var initializing = true;
-			var statusMode = 'hidden';
+    (function() {
+      const INDETERMINATE_STATUS_STEP_MS = 100;
+      var statusProgress = document.getElementById('status-progress');
+      var statusProgressInner = document.getElementById('status-progress-inner');
+      var statusIndeterminate = document.getElementById('status-indeterminate');
+      var statusNotice = document.getElementById('status-notice');
 
-			var animationCallbacks = [];
-			function animate(time) {
-				animationCallbacks.forEach(callback => callback(time));
-				requestAnimationFrame(animate);
-			}
-			requestAnimationFrame(animate);
+      var initializing = true;
+      var statusMode = 'hidden';
 
-			function setStatusMode(mode) {
+      var animationCallbacks = [];
+      function animate(time) {
+        animationCallbacks.forEach(callback => callback(time));
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
 
-				if (statusMode === mode || !initializing)
-					return;
-				[statusProgress, statusIndeterminate, statusNotice].forEach(elem => {
-					elem.style.display = 'none';
-				});
-				animationCallbacks = animationCallbacks.filter(function(value) {
-					return (value != animateStatusIndeterminate);
-				});
-				switch (mode) {
-					case 'progress':
-						statusProgress.style.display = 'block';
-						break;
-					case 'indeterminate':
-						statusIndeterminate.style.display = 'block';
-						animationCallbacks.push(animateStatusIndeterminate);
-						break;
-					case 'notice':
-						statusNotice.style.display = 'block';
-						break;
-					case 'hidden':
-						break;
-					default:
-						throw new Error('Invalid status mode');
-				}
-				statusMode = mode;
-			}
+      function setStatusMode(mode) {
+        if (statusMode === mode || !initializing) return;
+        [statusProgress, statusIndeterminate, statusNotice].forEach(elem => { elem.style.display = 'none'; });
+        animationCallbacks = animationCallbacks.filter(function(value) { return (value != animateStatusIndeterminate); });
+        switch (mode) {
+          case 'progress':      statusProgress.style.display = 'block'; break;
+          case 'indeterminate': statusIndeterminate.style.display = 'block'; animationCallbacks.push(animateStatusIndeterminate); break;
+          case 'notice':        statusNotice.style.display = 'block'; break;
+          case 'hidden':        break;
+          default: throw new Error('Invalid status mode');
+        }
+        statusMode = mode;
+      }
 
-			function animateStatusIndeterminate(ms) {
-				var i = Math.floor(ms / INDETERMINATE_STATUS_STEP_MS % 8);
-				if (statusIndeterminate.children[i].style.borderTopColor == '') {
-					Array.prototype.slice.call(statusIndeterminate.children).forEach(child => {
-						child.style.borderTopColor = '';
-					});
-					statusIndeterminate.children[i].style.borderTopColor = '#dfdfdf';
-				}
-			}
+      function animateStatusIndeterminate(ms) {
+        var i = Math.floor(ms / INDETERMINATE_STATUS_STEP_MS % 8);
+        if (statusIndeterminate.children[i].style.borderTopColor == '') {
+          Array.prototype.slice.call(statusIndeterminate.children).forEach(child => { child.style.borderTopColor = ''; });
+          statusIndeterminate.children[i].style.borderTopColor = '#dfdfdf';
+        }
+      }
 
-			function setStatusNotice(text) {
-				while (statusNotice.lastChild) {
-					statusNotice.removeChild(statusNotice.lastChild);
-				}
-				var lines = text.split('\n');
-				lines.forEach((line) => {
-					statusNotice.appendChild(document.createTextNode(line));
-					statusNotice.appendChild(document.createElement('br'));
-				});
-			};
+      function setStatusNotice(text) {
+        while (statusNotice.lastChild) { statusNotice.removeChild(statusNotice.lastChild); }
+        var lines = text.split('\n');
+        lines.forEach((line) => {
+          statusNotice.appendChild(document.createTextNode(line));
+          statusNotice.appendChild(document.createElement('br'));
+        });
+      };
 
-			function displayFailureNotice(err) {
-				var msg = err.message || err;
-				console.error(msg);
-				setStatusNotice(msg);
-				setStatusMode('notice');
-				initializing = false;
-			};
+      function displayFailureNotice(err) {
+        var msg = err.message || err;
+        console.error(msg);
+        setStatusNotice(msg);
+        setStatusMode('notice');
+        initializing = false;
+      };
 
-			if (!Engine.isWebGLAvailable()) {
-				displayFailureNotice('WebGL not available');
-			} else {
-				setStatusMode('indeterminate');
-				engine.startGame({
-					'onProgress': function (current, total) {
-						if (total > 0) {
-							statusProgressInner.style.width = current/total * 100 + '%';
-							setStatusMode('progress');
-							if (current === total) {
-								// wait for progress bar animation
-								setTimeout(() => {
-									setStatusMode('indeterminate');
-								}, 500);
-							}
-						} else {
-							setStatusMode('indeterminate');
-						}
-					},
-				}).then(() => {
-					setStatusMode('hidden');
-					initializing = false;
-				}, displayFailureNotice);
-			}
-		})();
-	//]]></script>
-	<script src="line-panel.js"></script>
+      if (!Engine.isWebGLAvailable()) {
+        displayFailureNotice('WebGL not available');
+      } else {
+        setStatusMode('indeterminate');
+        engine.startGame({
+          'onProgress': function (current, total) {
+            if (total > 0) {
+              statusProgressInner.style.width = current/total * 100 + '%';
+              setStatusMode('progress');
+              if (current === total) {
+                setTimeout(() => { setStatusMode('indeterminate'); }, 500);
+              }
+            } else {
+              setStatusMode('indeterminate');
+            }
+          },
+        }).then(() => {
+          setStatusMode('hidden');
+          initializing = false;
+        }, displayFailureNotice);
+      }
+    })();
+    //]]>
+  </script>
+
+  <!-- ===== HUD 元件（大字框；從 JS：HUD.open('標題','內容') 呼叫） ===== -->
+  <div class="hud" id="hud">
+    <div class="hud-backdrop" onclick="HUD.close()"></div>
+    <div class="hud-card">
+      <div class="hud-body">
+        <h2 class="hud-title" id="hudTitle">標題</h2>
+        <div class="hud-text" id="hudText">內文</div>
+      </div>
+      <div class="hud-actions">
+        <button class="btn btn-primary" onclick="HUD.close()">關閉</button>
+        <button class="btn btn-ghost"   onclick="HUD.copy()">複製文字</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.HUD = {
+      open(t, msg){
+        document.getElementById('hudTitle').textContent = t || '訊息';
+        document.getElementById('hudText').textContent  = msg || '內容';
+        document.getElementById('hud').classList.add('show');
+      },
+      close(){ document.getElementById('hud').classList.remove('show'); },
+      copy(){
+        const txt = document.getElementById('hudText').textContent;
+        navigator.clipboard?.writeText(txt);
+        this.close();
+      }
+    };
+
+    // （要測試就解除註解）
+    // setTimeout(()=>HUD.open('示範：熱區資訊','這裡是熱區說明文字，行動版字體會自動放大，並且可複製/關閉。'),1500);
+  </script>
+
+  <!-- 你的 LINE 面板（依你現況，不改檔名與內容） -->
+  <script src="line-panel.js"></script>
 </body>
 </html>
