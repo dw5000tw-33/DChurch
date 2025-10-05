@@ -1,0 +1,233 @@
+[gd_scene load_steps=15 format=2]
+
+[ext_resource path="res://assets/stage.jpg" type="Texture" id=1]
+[ext_resource path="res://scripts/Hotspot.gd" type="Script" id=2]
+[ext_resource path="res://scripts/CameraController.gd" type="Script" id=3]
+[ext_resource path="res://fonts/UiFont.tres" type="DynamicFont" id=4]
+
+[sub_resource type="SpatialMaterial" id=10]
+flags_unshaded = true
+params_cull_mode = 2
+albedo_texture = ExtResource( 1 )
+
+[sub_resource type="QuadMesh" id=11]
+size = Vector2( 16, 9 )
+
+[sub_resource type="BoxShape" id=3]
+margin = 0.635
+extents = Vector3( 1.6, 2.1, 0.1 )
+
+[sub_resource type="BoxShape" id=4]
+extents = Vector3( 2.6, 1, 0.1 )
+
+[sub_resource type="BoxShape" id=5]
+extents = Vector3( 1.6, 0.75, 0.1 )
+
+[sub_resource type="BoxShape" id=6]
+extents = Vector3( 0.384926, 0.95, 0.801611 )
+
+[sub_resource type="BoxShape" id=7]
+extents = Vector3( 1.2, 0.75, 0.1 )
+
+[sub_resource type="BoxShape" id=8]
+extents = Vector3( 0.45, 1.4, 0.1 )
+
+[sub_resource type="BoxShape" id=9]
+extents = Vector3( 7.2, 0.9, 0.1 )
+
+[sub_resource type="StyleBoxFlat" id=12]
+bg_color = Color( 0.101961, 0.196078, 0.368627, 1 )
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="Main" type="Spatial"]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 8.69125, -4.83006, 1.06434, -4.55296, -8.65387, -2.09312, 1.93205, 1.3346, -9.72039, 0.368952, 4.08952, 4.42917 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( 0.999636, 0.00258621, 0.0268706, -0.000421294, 0.996774, -0.0802633, -0.0269915, 0.0802227, 0.996412, 1.2995, 0.119922, 11.286 )
+current = true
+script = ExtResource( 3 )
+ui_panel_path = NodePath("../UI/Panel")
+title_label_path = NodePath("../UI/Panel/Title")
+body_label_path = NodePath("../UI/Panel/Body")
+move_tween_path = NodePath("Move Tween")
+cam_targets_path = NodePath("../CamTargets")
+stage_plane_path = NodePath("../StagePlane")
+
+[node name="Move Tween" type="Tween" parent="Camera"]
+
+[node name="StagePlane" type="MeshInstance" parent="."]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1.4594, 0 )
+material_override = SubResource( 10 )
+mesh = SubResource( 11 )
+skeleton = NodePath("")
+software_skinning_transform_normals = false
+
+[node name="CrossHotspot" type="Area" parent="."]
+transform = Transform( 0.99966, 0, 0.0260897, 0, 1, 0, -0.0260897, 0, 0.99966, -5.15402, 2.80047, 1.79393 )
+monitorable = false
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "十字架"
+body = "尋找的，就尋見；叩門的，就給他開門
+(馬太7:8)"
+focus_marker = "CrossView"
+link = "https://www.notion.so/283bd9dfc33480218646e5da340535e2?v=283bd9dfc3348056b416000c24447cf3"
+
+[node name="CollisionShape" type="CollisionShape" parent="CrossHotspot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 )
+shape = SubResource( 3 )
+
+[node name="WelcomeHotspot" type="Area" parent="."]
+transform = Transform( 2, 0, 0, 0, 2, 0, 0, 0, 2, 3.11709, 3.69555, 1.70284 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "歡迎回家"
+body = "東海靈糧堂的核心邀請：在神的家得著安息與恢復。"
+focus_marker = "WelcomeView"
+link = "https://www.notion.so/283bd9dfc33480218646e5da340535e2?v=283bd9dfc334804c968f000cee6a5541&source=copy_link"
+
+[node name="CollisionShape" type="CollisionShape" parent="WelcomeHotspot"]
+shape = SubResource( 4 )
+
+[node name="BandHotspot" type="Area" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -4.25755, -2.07452, 1.76519 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "敬拜團"
+body = "透過音樂我們敬拜讚美主耶穌。"
+focus_marker = "BandView"
+link = "https://www.youtube.com/watch?v=X8gAuY5yZeA"
+
+[node name="CollisionShape" type="CollisionShape" parent="BandHotspot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.184468 )
+shape = SubResource( 5 )
+
+[node name="PastorHotspot" type="Area" parent="."]
+transform = Transform( 1.97892, 0.0355733, -0.287446, -0.0456887, 1.99835, -0.0672348, 0.286012, 0.0730925, 1.97809, 0, -1.69319, -0.0856108 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "講台"
+body = "牧者在此分享信息、帶領禱告與祝福。"
+focus_marker = "PulpitView"
+link = "https://www.youtube.com/watch?v=LgLto68HYTY"
+
+[node name="CollisionShape" type="CollisionShape" parent="PastorHotspot"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00244357, 0.599651, 1.3321 )
+shape = SubResource( 6 )
+
+[node name="KeysHotspot" type="Area" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.36483, -2.06994, 0.254501 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "鍵盤區"
+body = "鍵盤樂手在此服事，營造敬拜氛圍。"
+focus_marker = "KeysView"
+link = "https://www.youtube.com/channel/UCH7TSH_Usr_JzHf4dOAFc2g"
+
+[node name="CollisionShape" type="CollisionShape" parent="KeysHotspot"]
+shape = SubResource( 7 )
+
+[node name="RightDoorHotspot" type="Area" parent="."]
+transform = Transform( 1.93638, 0, -0.500422, 0, 2, 0, 0.500422, 0, 1.93638, 12.3371, -0.948723, -0.1 )
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "旁門動線"
+body = "旁門與同工動線，服事者進出與支援區域"
+focus_marker = "WideView"
+link = "https://line.me/R/ti/p/@307momvl"
+
+[node name="CollisionShape" type="CollisionShape" parent="RightDoorHotspot"]
+shape = SubResource( 8 )
+
+[node name="BenchesHotspot" type="Area" parent="."]
+transform = Transform( 2.99976, 0, -0.0379599, 0, 3, 0, 0.0379599, 0, 2.99976, -2.05061, -6.37019, 1.0604 )
+gravity_vec = Vector3( 0, 0.1, 0 )
+linear_damp = 1.0
+angular_damp = 20.0
+audio_bus_override = true
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_group_": true
+}
+title = "會眾座位"
+body = "一起敬拜、禱告與領受信息之處。"
+focus_marker = "WideView"
+link = "https://dw5000tw-33.github.io/fbauto/card/hero5.mp4"
+
+[node name="CollisionShape" type="CollisionShape" parent="BenchesHotspot"]
+shape = SubResource( 9 )
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Panel" type="Panel" parent="UI"]
+margin_left = 131.0
+margin_top = 72.0
+margin_right = 651.0
+margin_bottom = 292.0
+rect_min_size = Vector2( 520, 220 )
+mouse_filter = 2
+custom_styles/panel = SubResource( 12 )
+
+[node name="Title" type="Label" parent="UI/Panel"]
+margin_left = 20.0
+margin_top = 16.0
+margin_right = 500.0
+margin_bottom = 56.0
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_y = 1
+custom_fonts/font = ExtResource( 4 )
+text = "標題"
+align = 1
+
+[node name="Body" type="RichTextLabel" parent="UI/Panel"]
+margin_left = 20.0
+margin_top = 60.0
+margin_right = 500.0
+margin_bottom = 200.0
+custom_colors/font_color_selected = Color( 1, 1, 1, 1 )
+custom_constants/shadow_offset_x = 0
+custom_constants/shadow_as_outline = 1
+custom_fonts/mono_font = ExtResource( 4 )
+custom_fonts/normal_font = ExtResource( 4 )
+bbcode_enabled = true
+bbcode_text = "[url=https://line.me/R/ti/p/@307momvl][color=skyblue][u]點我開網頁[/u][/color][/url]"
+text = "點我開網頁"
+
+[node name="CamTargets" type="Spatial" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.475405, 5.41466 )
+
+[node name="CrossView" type="Spatial" parent="CamTargets"]
+transform = Transform( 0.999003, 0, -0.034886, 0, 1, 0, 0.034886, 0, 0.999003, -5, 4, 11 )
+
+[node name="PulpitView" type="Spatial" parent="CamTargets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 6.13866 )
+
+[node name="KeysView" type="Spatial" parent="CamTargets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.6, 6.84299 )
+
+[node name="BandView" type="Spatial" parent="CamTargets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.6, 5 )
+
+[node name="WelcomeView" type="Spatial" parent="CamTargets"]
+transform = Transform( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6.85351 )
+
+[node name="WideView" type="Spatial" parent="CamTargets"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 12 )
