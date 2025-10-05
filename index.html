@@ -14,6 +14,7 @@
       --h2: clamp(18px, 4.6vw, 26px);
       --tap: 44px;
       --gap: 12px;
+      --blue:#1F5FBF;
     }
     html, body { font-size: var(--base); -webkit-text-size-adjust: 100%; }
 
@@ -55,6 +56,8 @@
       position: absolute; left: 0; top: 0; right: 0; bottom: 0;
       display: flex; justify-content: center; align-items: center;
       visibility: hidden; /* 子元素自行顯示 */
+      z-index: 1; /* 在 canvas 上方，但低於 HUD */
+      pointer-events: none;
     }
     #status-progress {
       width: 366px; height: 7px; background-color: #38363A;
@@ -97,22 +100,13 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* （選用）把一串小連結包成卡片清單時用 */
-    .link-list{ display:grid; gap:12px; padding:12px; }
-    .link-list a{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:14px 16px; border-radius:14px; background:#fff;
-      box-shadow:0 6px 18px rgba(0,0,0,.08);
-      min-height: var(--tap);
-    }
-
     /* ===== HUD：HTML 浮層（蓋在 canvas 上） ===== */
     .hud{position:fixed; inset:0; display:none; align-items:flex-end; justify-content:center; z-index:9998;}
     .hud.show{display:flex;}
     .hud-backdrop{position:absolute; inset:0; background:rgba(0,0,0,.45);}
     .hud-card{
       position:relative; z-index:1; margin:16px; width:min(680px, 92vw);
-      background:#fff; border:2px solid #1F5FBF; border-radius:16px;
+      background:#fff; border:2px solid var(--blue); border-radius:16px;
       box-shadow:0 10px 26px rgba(0,0,0,.24);
     }
     .hud-body{padding:18px 16px 12px 16px;}
@@ -122,6 +116,15 @@
     .btn{flex:1 1 auto; min-height:48px; border-radius:12px; border:0; font-weight:800; cursor:pointer}
     .btn-primary{background:#06C755; color:#fff;}
     .btn-ghost{background:#f1f3f5; color:#111;}
+
+    /* 左上角小標籤（確認已載入新版 UI，可移除） */
+    #ux-badge{
+      position:fixed; left:10px; top:10px; z-index:9999;
+      background:#fff; color:#0b1645; border:2px solid var(--blue);
+      border-radius:999px; padding:6px 10px; font-weight:800; font-size:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,.12);
+    }
+    #ux-badge button{margin-left:8px; font-size:12px; padding:6px 10px;}
   </style>
 
   <link rel="manifest" href="index.manifest.json">
@@ -167,8 +170,29 @@
     <div id="status-notice" class="godot" style="display:none;"></div>
   </div>
 
+  <!-- ===== HUD 元件（大字框；從 JS：HUD.open('標題','內容') 呼叫） ===== -->
+  <div class="hud" id="hud">
+    <div class="hud-backdrop" onclick="HUD.close()"></div>
+    <div class="hud-card">
+      <div class="hud-body">
+        <h2 class="hud-title" id="hudTitle">標題</h2>
+        <div class="hud-text" id="hudText">內文</div>
+      </div>
+      <div class="hud-actions">
+        <button class="btn btn-primary" onclick="HUD.close()">關閉</button>
+        <button class="btn btn-ghost"   onclick="HUD.copy()">複製文字</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 左上角小標籤（確認新版 UI 已載入；可移除） -->
+  <div id="ux-badge">
+    UI 已載入
+    <button class="btn btn-ghost" onclick="HUD.open('示範：熱區資訊','這裡是熱區說明文字，行動版字體會自動放大，並且可複製/關閉。')">顯示示範</button>
+  </div>
+
   <!-- Godot 核心腳本（原樣保留） -->
-  <script type="text/javascript" src="index.js"></script>
+  <script src="index.js"></script>
   <script>
     //<![CDATA[
     const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":23780992,"index.wasm":25590391},"focusCanvas":true,"gdnativeLibs":[],"serviceWorker":"index.service.worker.js"};
@@ -255,22 +279,8 @@
     //]]>
   </script>
 
-  <!-- ===== HUD 元件（大字框；從 JS：HUD.open('標題','內容') 呼叫） ===== -->
-  <div class="hud" id="hud">
-    <div class="hud-backdrop" onclick="HUD.close()"></div>
-    <div class="hud-card">
-      <div class="hud-body">
-        <h2 class="hud-title" id="hudTitle">標題</h2>
-        <div class="hud-text" id="hudText">內文</div>
-      </div>
-      <div class="hud-actions">
-        <button class="btn btn-primary" onclick="HUD.close()">關閉</button>
-        <button class="btn btn-ghost"   onclick="HUD.copy()">複製文字</button>
-      </div>
-    </div>
-  </div>
-
   <script>
+    /* HUD 控制（從任何地方呼叫） */
     window.HUD = {
       open(t, msg){
         document.getElementById('hudTitle').textContent = t || '訊息';
@@ -285,8 +295,15 @@
       }
     };
 
-    // （要測試就解除註解）
-    // setTimeout(()=>HUD.open('示範：熱區資訊','這裡是熱區說明文字，行動版字體會自動放大，並且可複製/關閉。'),1500);
+    /* ✅ 第一次載入自動示範（只顯示一次；想永遠顯示把 if 拿掉） */
+    (function(){
+      try{
+        if(!localStorage.getItem('hud_demo_shown')){
+          localStorage.setItem('hud_demo_shown','1');
+          setTimeout(()=>HUD.open('示範：熱區資訊','這是 HTML 浮層（HUD），蓋在 canvas 上，行動版字體自動放大，並可複製/關閉。'), 1200);
+        }
+      }catch(e){}
+    })();
   </script>
 
   <!-- 你的 LINE 面板（依你現況，不改檔名與內容） -->
