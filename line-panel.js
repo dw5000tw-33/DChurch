@@ -79,6 +79,7 @@
   box.id = 'line-fab';
   box.innerHTML = `
     <div class="card" role="region" aria-label="LINE actions">
+        <div class="drag-handle"><div class="dots" aria-hidden="true"></div>
         <div class="row">
         <button id="btn-open"  title="在 LINE 中開啟">在 LINE 打開</button>
         <button id="btn-share" title="分享給好友">分享</button>
