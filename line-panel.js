@@ -22,7 +22,7 @@
   const style = document.createElement('style');
   style.textContent = `
     #line-fab{position:fixed;right:16px;bottom:16px;z-index:2147483647;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial}
-    #line-fab .card{background:${THEME.white};border-radius:16px;box-shadow:0 10px 26px rgba(0,0,0,.14);padding:10px;border:2px solid ${THEME.blue};min-width: 260px;touch-action:none}
+    #line-fab .card{background:${THEME.white};border-radius:16px;box-shadow:0 10px 26px rgba(0,0,0,.14);padding:10px;border:4px solid ${THEME.blue};min-width: 260px;touch-action:none}
     #line-fab .row{display:flex;gap:8px;flex-wrap:wrap}
     #line-fab button{border:0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:700;flex:1 1 auto;min-width:96px;min-height:44px}
     #btn-open{background:${THEME.green};color:#fff}
