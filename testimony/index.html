@@ -31,6 +31,7 @@ figcaption{padding:9px 10px;color:#506259;font-size:13px;font-weight:750}
 .reading{display:none}body.stage .wrap{max-width:1000px;padding-top:12px}body.stage header{padding:4px 0 14px}body.stage .toolbar{top:0}body.stage .nav,body.stage .intro{display:none}body.stage section{box-shadow:none;padding:clamp(22px,5vw,48px)}body.stage .story{font-size:clamp(19px,2.4vw,24px);line-height:2.05}
 body.stage .stage-only{display:block}body.stage .regular-only{display:none}
 .stage-only{display:none}.regular-only{display:block}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0}.video-card{border:1px solid var(--line);border-radius:14px;padding:10px;background:#faf9f5}.video-card h3{margin:3px 0 8px;font-size:16px;color:#2b5142}.video-card video{width:100%;max-height:460px;display:block;background:#18201c;border-radius:10px;object-fit:contain}.video-card a{display:inline-block;margin-top:6px;color:var(--green);font-size:13px;font-weight:700}
 @media(max-width:650px){.wrap{padding:12px 12px 90px}.toolbar{gap:6px;padding:8px}.toolbar button{padding:8px 9px;font-size:13px}.clock{font-size:18px;min-width:82px}.gallery{grid-template-columns:1fr;gap:14px}.gallery figure img{aspect-ratio:9/12;object-fit:contain;background:#f6f4ef;max-height:70vh}.story{font-size:16px}.nav a{font-size:12px}section{border-radius:16px}}
 @media print{.toolbar,.nav,.intro{display:none!important}.wrap{max-width:none;padding:0}.story{font-size:12pt}section{box-shadow:none;break-inside:avoid}}
 </style>
@@ -52,7 +53,7 @@ body.stage .stage-only{display:block}body.stage .regular-only{display:none}
 <div class="clock" id="clock" aria-live="polite">10:00</div>
 <div class="progress"><i id="bar"></i></div>
 </div>
-<nav class="nav"><a href="#faith">信仰｜尋找依靠</a><a href="#preparation">預備｜等待中</a><a href="#surrender">交託｜四張早安圖</a><a href="#ending">結論</a></nav>
+<nav class="nav"><a href="#faith">信仰｜尋找依靠</a><a href="#preparation">預備｜等待中</a><a href="#surrender">交託｜四張早安圖</a><a href="#videos">影片｜時間允許時播放</a><a href="#ending">結論</a></nav>
 
 <section id="faith">
 <span class="tag">01 · FAITH</span><h2>信仰｜我開始尋找依靠</h2>
@@ -97,6 +98,15 @@ body.stage .stage-only{display:block}body.stage .regular-only{display:none}
 </div>
 <p class="small regular-only">點圖片可放大。上台閱讀模式會隱藏工具列，保留講稿和圖片。</p>
 </section>
+
+<section id="videos">
+<span class="tag">OPTIONAL · VIDEOS</span><h2>時間允許時播放｜三支短片</h2>
+<p class="small">可以視現場時間選擇播放，按下播放鍵才會開始。三支影片合計約 54 秒。</p>
+<div class="video-grid">
+<div class="video-card"><h3>基甸｜約 11 秒</h3><video controls preload="none" playsinline><source src="./videos/gideon.mp4" type="video/mp4">你的瀏覽器不支援影片播放。</video><a href="./videos/gideon.mp4" download>下載影片</a></div>
+<div class="video-card"><h3>聚會｜11/04｜約 11 秒</h3><video controls preload="none" playsinline><source src="./videos/gathering-1104.mp4" type="video/mp4">你的瀏覽器不支援影片播放。</video><a href="./videos/gathering-1104.mp4" download>下載影片</a></div>
+<div class="video-card"><h3>哈拿｜約 32 秒</h3><video controls preload="none" playsinline><source src="./videos/hannah.mp4" type="video/mp4">你的瀏覽器不支援影片播放。</video><a href="./videos/hannah.mp4" download>下載影片</a></div>
+</div></section>
 
 <section id="ending">
 <span class="tag">CONCLUSION</span><h2>結論</h2>
