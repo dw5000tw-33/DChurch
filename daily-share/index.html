@@ -23,27 +23,27 @@
 .remote-debug pre{white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;background:#fff;border:1px solid #e5ede6;border-radius:8px;padding:10px}
 .remote-error{color:#a04736;font-size:12px}.remote-empty{font-size:13px;color:#7a8b7d;padding:15px}
 @media(max-width:600px){.remote-main{width:100%}.remote-button-row .remote-secondary{width:100%}}
-</style>
+.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}</style>
 </head>
 <body>
 <main class="layout">
-  <header class="top"><div class="brand"><div class="logo">✦</div><div><div class="small">教會每日內容整理</div><strong>每日分享工作台</strong></div></div><div class="tag">前台功能測試 v0.3</div></header>
-  <section class="hero"><div><h1>把每天要分享的內容，<br>整理成一件簡單的事。</h1><p>看文章、核對來源、勾選內容，一次複製到 LINE。<br>讓每天的整理時間留給更重要的事。</p></div><div class="datebox">Facebook 資料<strong id="remoteDateLabel">尚未讀取</strong></div></section>
+  <header class="top"><div class="brand"><div class="logo">✦</div><div><strong>每日分享工作台</strong></div></div></header>
+
   <div class="columns" style="grid-template-columns:1fr;max-width:900px;margin:0 auto">
    <section>
     <div class="panel">
-     <div class="panel-head"><div><h2>文章選擇</h2><p>來源查證只供區長查看，不會加入分享文字</p></div><span class="sample" id="prayerMode">等待 B 電腦資料</span></div>
-     <div class="group">
-      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>每日三篇禱告</strong><div class="sub">三篇完整正文，合併為一則 LINE 訊息</div></span><span class="group-pill">三合一</span></label>
+     <div class="panel-head"><div><h2>每日分享工作台</h2><p>第一步輸入密碼並更新貼文，第二步勾選要分享的文章，再複製到 LINE。</p></div></div>
       <div class="remote-controls">
- <div class="remote-title">Facebook 遠端讀取 <span class="remote-badge">B 電腦連線</span></div>
- <p class="remote-intro">先從 B 電腦取得真實粉專貼文，確認原文後再複製三篇。管理金鑰僅供目前測試，不會放在公開程式碼中。</p>
- <label for="remoteToken" class="remote-label">測試管理金鑰 ADMIN_TOKEN</label>
- <div class="remote-token-row"><input type="password" id="remoteToken" autocomplete="off" placeholder="貼上管理金鑰（此分頁暫存）"><button type="button" id="clearToken" class="remote-secondary">清除</button></div>
- <div class="remote-button-row"><button type="button" class="remote-main" id="remoteRead">呼叫 B 電腦更新貼文</button><button type="button" class="remote-secondary" id="remoteLast">查看最近回傳</button></div>
- <div class="remote-status" id="remoteStatus" role="status">尚未讀取。請先填入金鑰並呼叫 B 電腦。</div>
- <details class="remote-debug"><summary>讀取診斷（無需一般操作）</summary><pre id="remoteDebug">尚無資料</pre></details>
- </div><div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製三篇完整正文</button><p id="prayerCopyStatus" class="notice"></p>
+        <div class="remote-title">第一步｜讀取貼文</div>
+        <label for="remoteToken" class="remote-label">輸入密碼</label>
+        <div class="remote-token-row"><input type="password" id="remoteToken" autocomplete="off" placeholder="請輸入密碼"><button type="button" id="clearToken" class="remote-secondary">清除</button></div>
+        <div class="remote-button-row"><button type="button" class="remote-main" id="remoteRead">更新貼文</button><button type="button" class="remote-secondary" id="remoteLast" hidden tabindex="-1">查看最近回傳</button></div>
+        <div class="remote-status" id="remoteStatus" role="status" aria-live="polite">尚未更新貼文</div>
+        <details class="remote-debug" hidden><summary>診斷</summary><pre id="remoteDebug">尚無資料</pre></details>
+      </div>
+     <div class="group">
+      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜選擇禱告文章</strong><div class="sub">全選三篇，或在下方單獨勾選要分享的文章</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
+<div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製貼文</button><p id="prayerCopyStatus" class="notice">更新貼文後，勾選要分享的文章。</p>
      </div>
      <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date" value="2026-11-16"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">請選擇日期，再查詢三個來源。</p>
      <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
@@ -71,12 +71,17 @@ const sources=[
 {label:'為兒女禱告',identifiers:['100064615394959','為兒女禱告'],title:'為兒女禱告'}
 ];
 let collected=[null,null,null];
+let selected=[true,true,true];
 let requestId=null,working=false,poller=null;
 const info=$('remoteStatus'),diag=$('remoteDebug'),tokenEl=$('remoteToken');
 try{tokenEl.value=sessionStorage.getItem('dailyShareAdminToken')||''}catch(e){}
 tokenEl.addEventListener('input',()=>{try{sessionStorage.setItem('dailyShareAdminToken',tokenEl.value)}catch(e){}});
-$('clearToken').onclick=()=>{tokenEl.value='';try{sessionStorage.removeItem('dailyShareAdminToken')}catch(e){};status('金鑰已清除。')};
-function status(t,bad=false){info.textContent=t;info.classList.toggle('error',bad)}
+$('clearToken').onclick=()=>{tokenEl.value='';try{sessionStorage.removeItem('dailyShareAdminToken')}catch(e){};status('密碼已清除。')};
+function status(t,bad=false,ok=false){
+ info.textContent=(bad?'✕ ':ok?'✓ OK｜':'')+t;
+ info.classList.toggle('error',bad);
+ info.classList.toggle('ok',ok&&!bad);
+}
 function debug(data){diag.textContent=JSON.stringify(data,null,2).slice(0,22000)}
 function getToken(){return tokenEl.value.trim()}
 function recordText(obj){if(!obj||typeof obj!=='object')return '';
@@ -146,7 +151,10 @@ function render(){
   const marker=document.createElement('span');marker.className='post-icon';marker.textContent=String(i+1);
   const title=document.createElement('span');title.className='post-name';title.textContent=source.label;
   const date=document.createElement('span');date.className='post-date';date.textContent=post?(post.date||'日期待核對'):'尚未收到';
-  head.append(marker,title,date);row.append(head);
+  const pick=document.createElement('input');pick.type='checkbox';pick.className='post-select';pick.checked=selected[i];
+  pick.setAttribute('aria-label','選擇'+source.label);
+  pick.addEventListener('change',()=>{selected[i]=pick.checked;updateSelection();});
+  head.append(pick,marker,title,date);row.append(head);
   const body=document.createElement('div');body.className='post-preview';
   body.textContent=post?textWithHeader(post,source.title):'等待 B 電腦傳回真實貼文內容。';row.append(body);
   const actions=document.createElement('div');actions.className='post-actions';
@@ -158,20 +166,26 @@ function render(){
   }
   row.append(actions);container.append(row);
  }
- const complete=collected.every(x=>x?.text);
- $('directPrayerCopy').disabled=!complete;
- $('prayerMode').textContent=complete?'B 電腦真實資料':'尚未取得全部三篇';
- $('remoteDateLabel').textContent=complete?('已取得 '+collected.filter(Boolean).length+' 篇'):'尚未取得完整資料';
- $('prayerCopyStatus').textContent=complete?'三篇都已讀取。請確認每篇原文，然後按下複製。':'尚未取得三篇完整內容，不會使用示範資料或舊文字代替。';
+ updateSelection();
 }
-function setBusy(b){working=b;$('remoteRead').disabled=b;$('remoteLast').disabled=b}
+function updateSelection(){
+ const n=selected.filter(Boolean).length;
+ const all=n===3,none=n===0;
+ $('groupCheck').checked=all;
+ $('groupCheck').indeterminate=n>0&&!all;
+ $('selectionCount').textContent='已選 '+n+' 篇';
+ const ready=selected.every((enabled,i)=>!enabled||Boolean(collected[i]?.text));
+ $('directPrayerCopy').disabled=none||!ready||working;
+ $('prayerCopyStatus').textContent=none?'請先勾選至少一篇文章。':!ready?'選取的文章尚未全部更新，請先更新貼文。':'已選 '+n+' 篇，確認原文後按「複製貼文」。';
+}
+function setBusy(b){working=b;$('remoteRead').disabled=b;$('remoteLast').disabled=b;updateSelection()}
 async function call(path,method='GET'){
- const token=getToken();if(!token)throw Error('請先貼上 ADMIN_TOKEN（測試使用）。');
+ const token=getToken();if(!token)throw Error('請先輸入密碼。');
  const response=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)});
  let data;try{data=await response.json()}catch{throw Error('Cloudflare 回傳非 JSON（HTTP '+response.status+'）')}
  if(!response.ok){
-  if(response.status===401)throw Error('金鑰無效，請確認 ADMIN_TOKEN。');
-  if(response.status===409)throw Error('B 電腦已有一筆待處理命令，請先查看最近回傳後再操作。');
+  if(response.status===401)throw Error('密碼不正確，請聯絡管理員。');
+  if(response.status===409)throw Error('目前正在更新，請稍後再試；若持續失敗請聯絡管理員。');
   throw Error('Cloudflare HTTP '+response.status+'：'+(data.error||'無法完成'));
  }
  return data;
@@ -179,25 +193,25 @@ async function call(path,method='GET'){
 function acceptState(state,onlyMatching){
  const item=state?.lastRead;
  debug({onlineHint:state.onlineHint,lastSeen:state.lastSeen,pending:state.pending,lastRead:item});
- if(!item){status('Cloudflare 尚無 B 電腦的讀取結果。',true);return false}
+ if(!item){status('目前沒有可使用的貼文，請聯絡管理員。',true);return false}
  if(onlyMatching&&item.id!==requestId)return false;
- if(item.type!=='READ_PAGE'||item.result?.ok!==true){status('B 電腦回傳讀取失敗：'+(item.result?.error||'未知錯誤'),true);return true}
+ if(item.type!=='READ_PAGE'||item.result?.ok!==true){status('讀取失敗，請聯絡管理員。',true);return true}
  const extracted=parseResult(item.result);
  collected=extracted.mapped;
  render();
  const count=collected.filter(Boolean).length;
  const when=item.receivedAt?new Date(item.receivedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'';
- status('Cloudflare 收到 '+when+' 的資料，共 '+extracted.pages+' 個粉專結果；三篇禱告辨識成功 '+count+'/3 篇。'+(count<3?'請打開讀取診斷確認來源欄位，未取得的文章不會使用舊資料。':'請開原始貼文查證後再複製。'),count<3);
+ status(count===3?'三篇貼文已更新，請勾選並核對內容。':'僅取得 '+count+'/3 篇，請聯絡管理員確認。',count<3,count===3);
  return true;
 }
 $('remoteRead').onclick=async()=>{
  if(working)return;
  clearInterval(poller);requestId=null;collected=[null,null,null];render();setBusy(true);
- status('向 Cloudflare 發送 READ_PAGE 指令…');
+ status('正在更新貼文，請稍候…');
  try{
   const sent=await call('/api/read-request','POST');
   requestId=sent.commandId;debug({stage:'requested',commandId:requestId,expiresAt:sent.expiresAt});
-  status('已送出命令，等待 B 電腦讀取並回傳（通常約 30 秒，依實際連線而定）…');
+  status('正在更新貼文，約需數十秒…');
   const deadline=Date.now()+175000;
   let checking=false;
   const check=async()=>{
@@ -205,8 +219,8 @@ $('remoteRead').onclick=async()=>{
    try{
     const state=await call('/api/read-status');
     if(acceptStateIfCurrent(state)){clearInterval(poller);setBusy(false)}
-    else if(Date.now()>deadline){clearInterval(poller);setBusy(false);status('等待逾時，請先檢查 B 電腦是否啟用，再按「查看最近回傳」。',true)}
-   }catch(err){clearInterval(poller);setBusy(false);status(err.message,true)}
+    else if(Date.now()>deadline){clearInterval(poller);setBusy(false);status('更新逾時，請聯絡管理員。',true)}
+   }catch(err){clearInterval(poller);setBusy(false);status('更新失敗，請聯絡管理員。',true)}
    finally{checking=false}
   };
   function acceptStateIfCurrent(state){if(state?.lastRead?.id!==requestId)return false;return acceptState(state,true)}
@@ -219,12 +233,14 @@ $('remoteLast').onclick=async()=>{
  finally{setBusy(false)}
 };
 $('directPrayerCopy').onclick=async()=>{
- if(!$('groupCheck').checked){status('請先勾選「每日三篇禱告」。',true);return}
- if(!collected.every(x=>x?.text)){status('尚未取得三篇真實貼文，暫時不能複製。',true);return}
- const data=collected.map((x,i)=>textWithHeader(x,sources[i].title)).join('\n\n');
- try{await navigator.clipboard.writeText(data);$('prayerCopyStatus').textContent='已複製三篇真實文章，現在可以到 LINE 貼上。'}catch(e){window.prompt('瀏覽器禁止自動複製，請從這裡手動複製：',data)}
+ const indices=selected.map((yes,i)=>yes?i:-1).filter(i=>i>=0);
+ if(!indices.length){status('請先勾選要分享的文章。',true);return}
+ if(indices.some(i=>!collected[i]?.text)){status('所選文章尚未更新，請先按「更新貼文」。',true);return}
+ const data=indices.map(i=>textWithHeader(collected[i],sources[i].title)).join('\n\n');
+ try{await navigator.clipboard.writeText(data);$('prayerCopyStatus').textContent='✓ 已複製 '+indices.length+' 篇文章，請到 LINE 貼上。'}
+ catch(e){window.prompt('請手動複製以下文字：',data)}
 };
-$('groupCheck').addEventListener('change',()=>{$('directPrayerCopy').disabled=!$('groupCheck').checked||!collected.every(x=>x?.text)});
+$('groupCheck').addEventListener('change',()=>{selected=[true,true,true].map(()=> $('groupCheck').checked);render();});
 render();
 })();
 </script>
