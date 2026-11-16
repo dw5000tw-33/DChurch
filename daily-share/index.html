@@ -23,7 +23,7 @@
 .remote-debug pre{white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;background:#fff;border:1px solid #e5ede6;border-radius:8px;padding:10px}
 .remote-error{color:#a04736;font-size:12px}.remote-empty{font-size:13px;color:#7a8b7d;padding:15px}
 @media(max-width:600px){.remote-main{width:100%}.remote-button-row .remote-secondary{width:100%}}
-.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}</style>
+.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}.church-body{white-space:pre-wrap;overflow-wrap:anywhere;max-height:130px;overflow:hidden;line-height:1.75;font-size:13px;margin:12px 0;color:#4c5c50}.church-body.expanded{max-height:none}.church-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.church-copy{background:#337154;color:#fff;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}.church-link{font-size:12px;color:#397358}.church-notice{padding:16px;color:#758679;font-size:12px}.church-date{font-size:12px;color:#87968b;margin-left:9px}.church-expand{border:0;background:transparent;color:#397358;padding:8px 0;cursor:pointer;font-size:12px}</style>
 </head>
 <body>
 <main class="layout">
@@ -44,6 +44,10 @@
      <div class="group">
       <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜選取禱告文章</strong><div class="sub">可全選或單獨勾選；每篇提供原始貼文出處，確認內容後再複製貼上 LINE。</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
 <div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製貼文</button><p id="prayerCopyStatus" class="notice">更新貼文後，勾選要分享的文章。</p>
+     </div>
+     <div class="group" id="churchPanel">
+       <div class="group-top"><span><strong>第三步｜查看東海靈糧堂最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
+       <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
      </div>
      <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date" value="2026-11-16"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">請選擇日期，再查詢三個來源。</p>
      <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
@@ -71,6 +75,7 @@ const sources=[
 {label:'為兒女禱告',identifiers:['100064615394959','為兒女禱告'],title:'為兒女禱告'}
 ];
 let collected=[null,null,null];
+let churchPosts=[];
 let selected=[true,true,true];
 let requestId=null,working=false,poller=null;
 const info=$('remoteStatus'),diag=$('remoteDebug'),tokenEl=$('remoteToken');
@@ -136,6 +141,62 @@ function parseResult(data){
  }
  return {mapped,pages:pages.length};
 }
+
+function parseChurch(result){
+ const pages=flattenedPages(result);
+ const posts=[];
+ for(const page of pages){
+  const {aggregate,entries}=normalizePage(page);
+  if(!aggregate.includes('thll24615088')&&!aggregate.includes('東海靈糧堂'))continue;
+  for(const item of entries){
+   const post=item&&typeof item==='object'?(item.post||item.article||item):item;
+   const body=typeof post==='string'?post:(recordText(post)||recordText(item));
+   if(!body||body.trim().length<15)continue;
+   const link=recordLink(post)||recordLink(item);
+   const date=getDate(post)||getDate(item)||getDate(page);
+   posts.push({text:body.trim(),link,date});
+  }
+ }
+ const unique=[];
+ for(const post of posts){
+  if(!unique.some(p=>post.link&&p.link===post.link||p.text===post.text))unique.push(post);
+ }
+ return unique.slice(0,5);
+}
+function renderChurch(){
+ const target=$('churchPosts');
+ target.replaceChildren();
+ $('churchCount').textContent=churchPosts.length?'已取得 '+churchPosts.length+' 篇':'尚未取得';
+ if(!churchPosts.length){
+  const empty=document.createElement('div');empty.className='church-notice';
+  empty.textContent='尚未取得東海靈糧堂的貼文。請先按「更新貼文」，若持續沒有資料請聯絡管理員。';
+  target.append(empty);return;
+ }
+ churchPosts.forEach((post,index)=>{
+  const card=document.createElement('article');card.className='post';
+  const heading=document.createElement('div');heading.className='post-head';
+  const name=document.createElement('strong');name.textContent='東海靈糧堂貼文 '+(index+1);
+  heading.append(name);
+  if(post.date){const date=document.createElement('span');date.className='church-date';date.textContent=post.date;heading.append(date)}
+  card.append(heading);
+  const body=document.createElement('div');body.className='church-body';body.textContent=post.text;card.append(body);
+  const actions=document.createElement('div');actions.className='church-actions';
+  const expand=document.createElement('button');expand.type='button';expand.className='church-expand';expand.textContent='展開全文';
+  expand.onclick=()=>{const open=body.classList.toggle('expanded');expand.textContent=open?'收合全文':'展開全文'};actions.append(expand);
+  if(post.link){
+   const a=document.createElement('a');a.className='church-link';a.textContent='查看原始貼文 ↗';a.href=post.link;a.target='_blank';a.rel='noopener noreferrer';actions.append(a);
+  }else{
+   const notice=document.createElement('span');notice.className='source-note';notice.textContent='原文連結待確認';actions.append(notice);
+  }
+  const copy=document.createElement('button');copy.type='button';copy.className='church-copy';copy.textContent='複製這一篇';
+  copy.onclick=async()=>{
+   try{await navigator.clipboard.writeText(post.text);copy.textContent='✓ 已複製';setTimeout(()=>copy.textContent='複製這一篇',2200)}
+   catch(err){window.prompt('請手動複製以下文字：',post.text)}
+  };
+  actions.append(copy);card.append(actions);target.append(card);
+ });
+}
+
 function textWithHeader(post,label){
  const text=post.text.trim();
  if(/^\s*20\d{2}\/\d{1,2}\/\d{1,2}/.test(text))return text;
@@ -198,7 +259,9 @@ function acceptState(state,onlyMatching){
  if(item.type!=='READ_PAGE'||item.result?.ok!==true){status('讀取失敗，請聯絡管理員。',true);return true}
  const extracted=parseResult(item.result);
  collected=extracted.mapped;
+ churchPosts=parseChurch(item.result);
  render();
+ renderChurch();
  const count=collected.filter(Boolean).length;
  const when=item.receivedAt?new Date(item.receivedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'';
  status(count===3?'三篇貼文已更新，請勾選並核對內容。':'僅取得 '+count+'/3 篇，請聯絡管理員確認。',count<3,count===3);
@@ -206,7 +269,7 @@ function acceptState(state,onlyMatching){
 }
 $('remoteRead').onclick=async()=>{
  if(working)return;
- clearInterval(poller);requestId=null;collected=[null,null,null];render();setBusy(true);
+ clearInterval(poller);requestId=null;collected=[null,null,null];churchPosts=[];render();renderChurch();setBusy(true);
  status('正在更新貼文，請稍候…');
  try{
   const sent=await call('/api/read-request','POST');
@@ -242,6 +305,7 @@ $('directPrayerCopy').onclick=async()=>{
 };
 $('groupCheck').addEventListener('change',()=>{selected=[true,true,true].map(()=> $('groupCheck').checked);render();});
 render();
+renderChurch();
 })();
 </script>
 
