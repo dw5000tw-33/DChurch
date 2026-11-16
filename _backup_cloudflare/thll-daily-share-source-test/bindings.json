@@ -1,0 +1,12 @@
+{
+  "compatibility_date": null,
+  "compatibility_flags": [],
+  "bindings": [
+    {
+      "name": "READING_DB",
+      "type": "d1",
+      "id": "8e7b3ab2-d368-4cc9-be4c-85e7e096cc88",
+      "database_id": "8e7b3ab2-d368-4cc9-be4c-85e7e096cc88"
+    }
+  ]
+}
