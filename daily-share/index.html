@@ -39,7 +39,28 @@
  <div class="remote-title">Facebook 遠端讀取 <span class="remote-badge">B 電腦連線</span></div>
  <p class="remote-intro">先從 B 電腦取得真實粉專貼文，確認原文後再複製三篇。管理金鑰僅供目前測試，不會放在公開程式碼中。</p>
  <label for="remoteToken" class="remote-label">測試管理金鑰 ADMIN_TOKEN</label>
- <div class="remote-token-row"><input typ<script>
+ <div class="remote-token-row"><input type="password" id="remoteToken" autocomplete="off" placeholder="貼上管理金鑰（此分頁暫存）"><button type="button" id="clearToken" class="remote-secondary">清除</button></div>
+ <div class="remote-button-row"><button type="button" class="remote-main" id="remoteRead">呼叫 B 電腦更新貼文</button><button type="button" class="remote-secondary" id="remoteLast">查看最近回傳</button></div>
+ <div class="remote-status" id="remoteStatus" role="status">尚未讀取。請先填入金鑰並呼叫 B 電腦。</div>
+ <details class="remote-debug"><summary>讀取診斷（無需一般操作）</summary><pre id="remoteDebug">尚無資料</pre></details>
+ </div><div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製三篇完整正文</button><p id="prayerCopyStatus" class="notice"></p>
+     </div>
+     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date" value="2026-11-16"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">請選擇日期，再查詢三個來源。</p>
+     <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
+    </div>
+   </section>
+   <aside class="right" style="display:none"><div class="panel">
+    <div class="panel-head"><div><h2>LINE 分享預覽</h2><p>只包含勾選文章的正文，不包含網址</p></div><span class="count" id="count">已選 3 篇</span></div>
+    <div class="preview-wrap"><div class="preview-title"><span>完整分享文字</span><span id="length">0 字</span></div><pre class="preview-text" id="preview"></pre></div>
+    <div class="actions"><button class="primary" id="copy">複製已勾選全文</button><button class="secondary" id="openLine">開啟 LINE（貼上剛複製的內容）</button></div>
+    <div class="notice"><strong>操作方式：</strong>先按「複製」，再開啟 LINE，選擇群組並貼上送出。系統不會自動傳送訊息。原文連結只在左側供人工查證。</div>
+    <div class="status" id="status" role="status"></div>
+    <div class="config"><details><summary>測試資料輸入（開發與驗收使用）</summary><p>可貼入文章 JSON 取代示範資料；不會上傳到伺服器或保存在公開 GitHub。正式資料串接仍待確認安全的讀取 API。</p><textarea id="jsonInput" spellcheck="false" placeholder='{"posts":[{"source":"天父的信","text":"...","url":"https://...","date":"2026/11/16"}]}'></textarea><button id="import">套用 JSON</button><button id="reset">還原示範</button></details></div>
+   </div></aside>
+  </div>
+</main>
+<footer class="footer">東海靈糧堂｜每日貼文整理工具・初版介面預覽｜未連接正式資料來源</footer>
+<script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);
@@ -204,35 +225,6 @@ $('directPrayerCopy').onclick=async()=>{
  try{await navigator.clipboard.writeText(data);$('prayerCopyStatus').textContent='已複製三篇真實文章，現在可以到 LINE 貼上。'}catch(e){window.prompt('瀏覽器禁止自動複製，請從這裡手動複製：',data)}
 };
 $('groupCheck').addEventListener('change',()=>{$('directPrayerCopy').disabled=!$('groupCheck').checked||!collected.every(x=>x?.text)});
-render();
-})();
-</script>em,i)=>{
-  const wrap=el('article','single'),check=el('input');check.type='checkbox';check.checked=otherSelected.has(i);check.addEventListener('change',()=>{check.checked?otherSelected.add(i):otherSelected.delete(i);update()});
-  const box=el('div','text'),title=el('h3',null,item.source||'未命名來源'),date=el('p',null,item.date||'日期未提供'),body=el('div','post-preview',item.text||'');body.classList.add('expanded');
-  box.append(title,date,body);
-  if(isValidHttp(item.url)){const a=el('a','quiet','查看原始貼文 ↗');a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';box.append(a)}else box.append(el('span','source-note','原文連結待補'));
-  wrap.append(check,box);other.append(wrap)
- });
- update();
-}
-function selected(){
- const picked=[];
- if($('groupCheck').checked){for(const source of groupSources){const p=posts.find(x=>x.source===source);if(p&&p.text)picked.push(p)}}
- posts.filter(x=>!groupSources.includes(x.source)).forEach((p,i)=>{if(otherSelected.has(i)&&p.text)picked.push(p)});
- return picked;
-}
-function update(){let list=selected();const text=list.map(x=>x.text).join('\n\n');$('preview').textContent=text||'請先勾選要分享的文章。';$('count').textContent='已選 '+list.length+' 篇';$('length').textContent=text.length+' 字';$('copy').disabled=!text;$('copy').style.opacity=text?'1':'.5'}
-$('groupCheck').addEventListener('change',update);
-$('copy').addEventListener('click',async()=>{let text=selected().map(x=>x.text).join('\n\n');if(!text)return;try{await navigator.clipboard.writeText(text);show('已複製 '+selected().length+' 篇文章。請到 LINE 選擇群組並貼上。')}catch(e){show('瀏覽器未允許自動複製。請選取右側分享預覽的文字手動複製。')}});
-$('openLine').addEventListener('click',()=>{show('已提供分享文字，請在 LINE 的對話框中貼上。');window.open('https://line.me/','_blank','noopener,noreferrer')});
-$('import').addEventListener('click',()=>{
- try{const obj=JSON.parse($('jsonInput').value);if(!Array.isArray(obj.posts))throw new Error('缺少 posts 陣列');
- const cleaned=obj.posts.map(p=>({source:String(p.source||'').slice(0,100),date:String(p.date||'').slice(0,50),text:String(p.text||''),url:String(p.url||'')})).filter(p=>p.source&&p.text);
- if(cleaned.length===0||cleaned.length>100)throw new Error('文章數量必須介於 1–100');
- posts=cleaned;otherSelected=new Set();render();show('資料已套用。來源未提供原文連結時，會顯示待補。')
- }catch(e){show('JSON 格式錯誤：'+e.message)}
-});
-$('reset').addEventListener('click',()=>{posts=sample.map(x=>Object.assign({},x));otherSelected=new Set();$('groupCheck').checked=true;render();show('已還原示範資料')});
 render();
 })();
 </script>
