@@ -1,0 +1,20 @@
+{
+  "compatibility_date": null,
+  "compatibility_flags": [],
+  "bindings": [
+    {
+      "name": "ADMIN_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "DEVICE_TOKEN",
+      "type": "secret_text"
+    },
+    {
+      "name": "RELAY",
+      "type": "durable_object_namespace",
+      "class_name": "Relay",
+      "namespace_id": "ddcab2ca6c9b48b6907f851b20d0b8d9"
+    }
+  ]
+}
