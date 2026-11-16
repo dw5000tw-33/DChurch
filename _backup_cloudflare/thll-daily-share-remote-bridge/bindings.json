@@ -1,0 +1,12 @@
+{
+  "compatibility_date": null,
+  "compatibility_flags": [],
+  "bindings": [
+    {
+      "name": "REMOTE",
+      "type": "service",
+      "service": "thll-remote-ping-test",
+      "environment": "production"
+    }
+  ]
+}
