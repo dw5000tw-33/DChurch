@@ -32,9 +32,9 @@
   <div class="columns" style="grid-template-columns:1fr;max-width:900px;margin:0 auto">
    <section>
     <div class="panel">
-     <div class="panel-head"><div><h2>操作步驟</h2><p>輸入密碼、更新貼文，勾選文章後即可複製到 LINE。</p></div></div>
+     <div class="panel-head"><div><h2>操作步驟</h2><p>第一步：輸入密碼，更新貼文。第二步：選取文章，查看原始貼文確認後再複製到 LINE。</p></div></div>
       <div class="remote-controls">
-        <div class="remote-title">第一步｜讀取貼文</div>
+        <div class="remote-title">第一步｜輸入密碼、更新貼文</div>
         <label for="remoteToken" class="remote-label">輸入密碼</label>
         <div class="remote-token-row"><input type="password" id="remoteToken" autocomplete="off" placeholder="請輸入密碼"><button type="button" id="clearToken" class="remote-secondary">清除</button></div>
         <div class="remote-button-row"><button type="button" class="remote-main" id="remoteRead">更新貼文</button><button type="button" class="remote-secondary" id="remoteLast" hidden tabindex="-1">查看最近回傳</button></div>
@@ -42,7 +42,7 @@
         <details class="remote-debug" hidden><summary>診斷</summary><pre id="remoteDebug">尚無資料</pre></details>
       </div>
      <div class="group">
-      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜選擇禱告文章</strong><div class="sub">全選三篇，或在下方單獨勾選要分享的文章</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
+      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜選取禱告文章</strong><div class="sub">可全選或單獨勾選；每篇提供原始貼文出處，確認內容後再複製貼上 LINE。</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
 <div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製貼文</button><p id="prayerCopyStatus" class="notice">更新貼文後，勾選要分享的文章。</p>
      </div>
      <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date" value="2026-11-16"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">請選擇日期，再查詢三個來源。</p>
@@ -150,11 +150,11 @@ function render(){
   const head=document.createElement('div');head.className='post-head';
   const marker=document.createElement('span');marker.className='post-icon';marker.textContent=String(i+1);
   const title=document.createElement('span');title.className='post-name';title.textContent=source.label;
-  const date=document.createElement('span');date.className='post-date';date.textContent=post?(post.date||'日期待核對'):'尚未收到';
+
   const pick=document.createElement('input');pick.type='checkbox';pick.className='post-select';pick.checked=selected[i];
   pick.setAttribute('aria-label','選擇'+source.label);
   pick.addEventListener('change',()=>{selected[i]=pick.checked;updateSelection();});
-  head.append(pick,marker,title,date);row.append(head);
+  head.append(pick,marker,title);row.append(head);
   const body=document.createElement('div');body.className='post-preview';
   body.textContent=post?textWithHeader(post,source.title):'等待 B 電腦傳回真實貼文內容。';row.append(body);
   const actions=document.createElement('div');actions.className='post-actions';
