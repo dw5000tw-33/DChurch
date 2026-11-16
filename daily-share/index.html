@@ -124,7 +124,7 @@ function show(items){
  else if(res&&!res.ok){inner.append(node('div','daily-state',res.error||'無法擷取這一天的資料'))}
  else inner.append(node('div','daily-state','選日期後按「查詢文章」'));
  const actions=node('div','single-actions');actions.style.marginTop='12px';
- const u=post?.url||res?.url||s.url;
+ const u=s.key==='bible'?'https://win.thll.org.tw/Bible/':(post?.url||res?.url||s.url);
  try{const v=new URL(u);if(v.protocol==='https:'){const a=node('a','daily-source','查看來源原文 ↗');a.href=v.href;a.target='_blank';a.rel='noopener noreferrer';actions.append(a)}}catch(e){}
  const b=node('button','daily-copy','複製這一篇');b.disabled=!post?.text;b.onclick=()=>copy(post.text,b);actions.append(b);
  inner.append(actions);box.append(inner);target.append(box);
