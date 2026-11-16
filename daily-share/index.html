@@ -49,7 +49,7 @@
        <div class="group-top"><span><strong>第三步｜查看東海靈糧堂最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
        <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
      </div>
-     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date" value="2026-11-16"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">請選擇日期，再查詢三個來源。</p>
+     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
      <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
     </div>
    </section>
@@ -350,6 +350,13 @@ function show(items){
  inner.append(actions);box.append(inner);target.append(box);
  }
 }
+function taipeiToday(now=new Date()){
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
+ const get=type=>parts.find(part=>part.type===type).value;
+ return get('year')+'-'+get('month')+'-'+get('day');
+}
+$('articleDate').value=taipeiToday();
+$('articleDate').addEventListener('change',()=>{show();$('dailyState').textContent='日期已更新，請按「查詢文章」。'});
 function moveDay(n){const day=$('articleDate');if(!day.value)return;const d=new Date(day.value+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);day.value=d.toISOString().slice(0,10);show();$('dailyState').textContent='日期已更新，請按「查詢文章」。'}
 $('previousDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);
 $('dailyLookup').onclick=async()=>{
@@ -359,8 +366,9 @@ $('dailyLookup').onclick=async()=>{
  const res=await fetch('https://thll-daily-share-source-test.dw5000-tw.workers.dev/api/date?date='+encodeURIComponent(date),{cache:'no-store',signal:AbortSignal.timeout(25000)});
  if(!res.ok)throw Error('查詢服務 HTTP '+res.status);
  const data=await res.json();if(!data.ok||!Array.isArray(data.results))throw Error('資料格式不符合');
+ if($('articleDate').value!==date)return;
  show(data.results);$('dailyState').textContent='查詢完成：'+data.results.filter(x=>x.ok).length+' / 3 個來源成功。各篇可直接查看來源、複製。';
- }catch(e){show(sources.map(x=>({...x,ok:false,error:'尚未能自動讀取：'+e.message})));$('dailyState').textContent='讀取未完成，請點來源原文確認。沒有用其他日期文章替代。'}
+ }catch(e){if($('articleDate').value!==date)return;show(sources.map(x=>({...x,ok:false,error:'尚未能自動讀取：'+e.message})));$('dailyState').textContent='讀取未完成，請點來源原文確認。沒有用其他日期文章替代。'}
  finally{b.disabled=false}
 };
 show();
