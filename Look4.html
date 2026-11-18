@@ -32,12 +32,13 @@ h1{text-align:center}
 <div><h1>找尋物品</h1><p class="season"><span aria-hidden="true">🍂</span> 感恩節破冰</p></div>
 <button id="next">下一頁 →</button>
 </div>
-<ol class="items">
+<ol class="items" id="prompts" aria-live="polite">
 <li>一樣有拉鍊的東西</li>
 <li>一樣上面有數字的東西（手機除外）</li>
 <li>一樣忘了帶會想回家拿的東西</li>
 <li>一樣可以拿來介紹自己的東西</li>
 </ol>
+<div class="controls timer-controls"><button id="shuffle">🎲 隨機抽 4 題</button></div>
 <div class="phase" id="phase" aria-live="polite"></div>
 <div class="clock" id="clock" role="timer">02:00</div>
 <div class="controls timer-controls"><button class="go" id="start"><span class="bell" aria-hidden="true">🔔</span><span id="start-label">開始倒數</span></button><button id="reset">重設</button></div>
@@ -89,6 +90,42 @@ ui('start').onclick = () => {
   draw();
 };
 ui('reset').onclick = reset;
+
+const slots = [...ui('prompts').children];
+let current = slots.map(slot => slot.textContent);
+const extras = [
+  "一樣可以寫字的東西",
+  "一樣可以擦手的東西",
+  "一樣可以充電的東西",
+  "一樣摸起來軟軟的東西",
+  "一樣摸起來硬硬的東西",
+  "一樣有香味的東西",
+  "一樣印有日期的東西",
+  "一樣可以折起來的東西",
+  "一樣可以掛在包包上的東西",
+  "一樣圓形且比手掌小的東西",
+  "一樣有兩種以上顏色的東西",
+  "一樣印有圖案的東西",
+  "一個可以重複使用的袋子",
+  "一樣能把東西綁在一起的東西",
+  "一樣能讓你順手整理頭髮的東西",
+  "一樣是別人送你而且今天剛好帶著的東西"
+];
+const bank = [...current, ...extras];
+let unused = [...extras];
+
+ui('shuffle').onclick = () => {
+  if (!unused.length) unused = [...bank];
+  const candidates = unused.filter(question => !current.includes(question));
+  current = slots.map(slot => {
+    const index = Math.floor(Math.random() * candidates.length);
+    const [question] = candidates.splice(index, 1);
+    slot.textContent = question;
+    return question;
+  });
+  unused = unused.filter(question => !current.includes(question));
+  reset();
+};
 function showVerse(show) {
   if (ticker) tick();
   pause();
