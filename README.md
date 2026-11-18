@@ -15,11 +15,11 @@
 「森林裡的狐狸」是一個幸福小組破冰互動網頁，包含五張故事圖卡、背景音樂與八分鐘倒數計時，適合帶領大家一起聽故事、參與互動。
 
 [開啟森林裡的狐狸互動網頁](https://dw5000tw-33.github.io/DChurch/%E5%B9%B8%E7%A6%8F%E5%B0%8F%E7%B5%84_%E6%A3%AE%E6%9E%97%E8%A3%A1%E7%9A%84%E7%8B%90%E7%8B%B8_%E4%BA%92%E5%8B%95%E7%B6%B2%E9%A0%81.html)
-## 感恩節破冰
+## 找尋物品
 
 四道找物題、兩分鐘倒數與經文收尾。
 
-[開啟感恩節破冰網頁](https://dw5000tw-33.github.io/DChurch/icebreaker.html)
+[開啟找尋物品遊戲](https://dw5000tw-33.github.io/DChurch/Look4.html)
 
 ## 成長班見證｜信仰・預備・交託
 
