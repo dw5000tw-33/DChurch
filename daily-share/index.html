@@ -23,36 +23,71 @@
 .remote-debug pre{white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;background:#fff;border:1px solid #e5ede6;border-radius:8px;padding:10px}
 .remote-error{color:#a04736;font-size:12px}.remote-empty{font-size:13px;color:#7a8b7d;padding:15px}
 @media(max-width:600px){.remote-main{width:100%}.remote-button-row .remote-secondary{width:100%}}
-.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}.church-body{white-space:pre-wrap;overflow-wrap:anywhere;max-height:130px;overflow:hidden;line-height:1.75;font-size:13px;margin:12px 0;color:#4c5c50}.church-body.expanded{max-height:none}.church-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.church-copy{background:#337154;color:#fff;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}.church-link{font-size:12px;color:#397358}.church-notice{padding:16px;color:#758679;font-size:12px}.church-date{font-size:12px;color:#87968b;margin-left:9px}.church-expand{border:0;background:transparent;color:#397358;padding:8px 0;cursor:pointer;font-size:12px}</style>
+.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}.church-body{white-space:pre-wrap;overflow-wrap:anywhere;max-height:130px;overflow:hidden;line-height:1.75;font-size:13px;margin:12px 0;color:#4c5c50}.church-body.expanded{max-height:none}.church-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.church-copy{background:#337154;color:#fff;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}.church-link{font-size:12px;color:#397358}.church-notice{padding:16px;color:#758679;font-size:12px}.church-date{font-size:12px;color:#87968b;margin-left:9px}.church-expand{border:0;background:transparent;color:#397358;padding:8px 0;cursor:pointer;font-size:12px}
+:root{color:#222f39;background:#f3f5f4}
+.layout{max-width:1160px;padding:32px 28px 40px}
+.top{margin:0 0 22px}.brand strong{font-size:16px}.logo{background:#183e36;color:#fff;border-radius:12px}
+.masthead{background:#183e36;color:#fff;border-radius:24px;padding:34px 36px;margin-bottom:16px}
+.masthead p{margin:0 0 7px;color:#d2e5dc;font-size:14px}.masthead h1{margin:0;font-size:clamp(27px,4vw,42px);line-height:1.25;letter-spacing:.02em}
+.section-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.section-nav a{color:#274c42;background:#fff;border:1px solid #dce6e0;border-radius:10px;text-decoration:none;padding:10px 13px;font-size:14px}
+.section-nav a:hover{background:#e4f0e9}
+.workspace{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+.lane{display:grid;gap:18px;min-width:0}
+.workspace .panel{border-radius:18px;scroll-margin-top:12px}
+.workspace .panel-head{padding:20px}.panel-head p{color:#52685e;line-height:1.6}
+.workspace .remote-controls{border:0;background:none;margin:0;padding:0 20px 20px}
+.workspace .group{margin:0;border:0;border-radius:0}.workspace .group-top{background:#eaf2ed;padding:15px 20px}
+#churchPanel .group-top{cursor:default}.sub{color:#4d6557;line-height:1.55}
+.post,.single{padding:17px 20px}.post-preview,.church-body,.daily-text{font-size:14px}
+.workspace .notice{padding:0 20px 17px;margin:0;color:#52665b}
+.workspace .date-controls{margin:0 20px 12px;padding:12px;gap:8px}
+.date-controls input{min-width:0;max-width:100%}.date-controls button,.remote-controls button,.primary,.church-copy,.daily-copy{min-height:44px}
+.post-date,.church-date,.source-note,.church-notice{color:#536a5d}.quiet,.church-link,.church-expand,.daily-source{font-size:13px}
+.footer{max-width:1160px;color:#52685e}
+:where(a,button,input,summary):focus-visible{outline:2px solid #397558;outline-offset:3px}
+@media(max-width:810px){.layout{padding:16px 14px 24px}.masthead{padding:25px 20px;border-radius:18px}.workspace{grid-template-columns:1fr}.workspace .panel-head{padding:17px 16px}.workspace .group-top{padding:14px 16px}.footer{padding:0 14px 24px}}
+</style>
 </head>
 <body>
 <main class="layout">
-  <header class="top"><div class="brand"><div class="logo">✦</div><div><strong>每日分享工作台</strong></div></div></header>
+  <header class="top"><div class="brand"><div class="logo">✦</div><div><strong>東海靈糧堂</strong></div></div></header>
 
-  <div class="columns" style="grid-template-columns:1fr;max-width:900px;margin:0 auto">
-   <section>
-    <div class="panel">
-     <div class="panel-head"><div><h2>操作步驟</h2><p>第一步：輸入密碼，更新貼文。第二步：選取文章，查看原始貼文確認後再複製到 LINE。</p></div></div>
+  <div class="masthead"><h1>每日分享工作台</h1></div>
+  <nav class="section-nav" aria-label="工作台區塊">
+    <a href="#updatePanel">更新貼文</a>
+    <a href="#prayerPanel">禱告文章</a>
+    <a href="#churchPanel">教會貼文</a>
+    <a href="#dailyPanel">其他每日文章</a>
+  </nav>
+  <div class="workspace">
+    <div class="lane">
+      <section class="panel" id="updatePanel" aria-labelledby="updateTitle">
+        <div class="panel-head"><h2 id="updateTitle">更新貼文</h2></div>
       <div class="remote-controls">
-        <div class="remote-title">第一步｜輸入密碼、更新貼文</div>
+        
         <label for="remoteToken" class="remote-label">輸入密碼</label>
         <div class="remote-token-row"><input type="password" id="remoteToken" autocomplete="off" placeholder="請輸入密碼"><button type="button" id="clearToken" class="remote-secondary">清除</button></div>
         <div class="remote-button-row"><button type="button" class="remote-main" id="remoteRead">更新貼文</button><button type="button" class="remote-secondary" id="remoteLast" hidden tabindex="-1">查看最近回傳</button></div>
         <div class="remote-status" id="remoteStatus" role="status" aria-live="polite">尚未更新貼文</div>
         <details class="remote-debug" hidden><summary>診斷</summary><pre id="remoteDebug">尚無資料</pre></details>
       </div>
-     <div class="group">
-      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜選取禱告文章</strong><div class="sub">可全選或單獨勾選；每篇提供原始貼文出處，確認內容後再複製貼上 LINE。</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
+      </section>
+     <section class="group panel" id="prayerPanel" aria-label="禱告文章">
+      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>選取禱告文章</strong><div class="sub">可全選或單獨勾選。核對原文後，再複製到 LINE。</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
 <div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製貼文</button><p id="prayerCopyStatus" class="notice">更新貼文後，勾選要分享的文章。</p>
-     </div>
-     <div class="group" id="churchPanel">
-       <div class="group-top"><span><strong>第三步｜查看東海靈糧堂最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
-       <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
-     </div>
-     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
-     <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
+     </section>
     </div>
-   </section>
+    <div class="lane">
+     <section class="group panel" id="churchPanel" aria-label="教會貼文">
+       <div class="group-top"><span><strong>教會最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
+       <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
+     </section>
+     <section class="panel" id="dailyPanel" aria-labelledby="dailyTitle">
+     <div class="panel-head"><div><h2 id="dailyTitle">其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
+     <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
+     </section>
+    </div>
    <aside class="right" style="display:none"><div class="panel">
     <div class="panel-head"><div><h2>LINE 分享預覽</h2><p>只包含勾選文章的正文，不包含網址</p></div><span class="count" id="count">已選 3 篇</span></div>
     <div class="preview-wrap"><div class="preview-title"><span>完整分享文字</span><span id="length">0 字</span></div><pre class="preview-text" id="preview"></pre></div>
@@ -63,7 +98,7 @@
    </div></aside>
   </div>
 </main>
-<footer class="footer">東海靈糧堂｜每日貼文整理工具・初版介面預覽｜未連接正式資料來源</footer>
+<footer class="footer">東海靈糧堂｜每日貼文整理工具</footer>
 <script>
 (function(){
 'use strict';
