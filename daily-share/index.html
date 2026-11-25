@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#f6f5f0">
+<meta name="theme-color" content="#173e32">
 <title>每日貼文整理-分享平台</title>
 <style>
 :root{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;color:#27372f;background:#f6f5f0;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer}a{color:#396b59}.layout{max-width:1120px;margin:0 auto;padding:26px 24px 100px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}.brand{display:flex;gap:12px;align-items:center}.logo{height:44px;width:44px;border-radius:15px;background:#dcebe2;color:#2e6b51;display:grid;place-items:center;font-size:23px}.small{color:#75867b;font-size:12px;letter-spacing:.06em}.brand strong{font-size:17px}.tag{border:1px solid #d2dfd6;background:#edf5ef;color:#547561;border-radius:50px;padding:8px 12px;font-size:12px}.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:25px}.hero h1{font-size:32px;font-weight:760;letter-spacing:-.05em;line-height:1.3;margin:0 0 9px}.hero p{color:#697b6f;margin:0;font-size:14px;line-height:1.7}.datebox{background:#fff;border:1px solid #e3e8e0;border-radius:14px;padding:12px 16px;color:#6d7c70;font-size:12px;min-width:164px}.datebox strong{display:block;color:#2e4233;font-size:17px;margin-top:5px}.columns{display:grid;grid-template-columns:minmax(0,1.16fr) minmax(325px,.84fr);gap:20px;align-items:start}.panel{background:#fff;border:1px solid #e6ebe5;border-radius:20px;box-shadow:0 8px 26px rgba(34,59,41,.035);overflow:hidden}.panel-head{padding:23px 23px 17px;display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-head h2{font-size:19px;letter-spacing:-.035em;margin:0}.panel-head p{font-size:12px;color:#809084;margin:7px 0 0}.group{margin:0 18px 18px;border:1px solid #e2e9e2;border-radius:15px;overflow:hidden}.group-top{display:flex;gap:11px;align-items:center;background:#f0f6f1;padding:17px 15px}.group-top input,.post-head input{accent-color:#367554;height:20px;width:20px;flex-shrink:0;cursor:pointer}.group-top strong{font-size:15px}.sub{font-size:12px;color:#758579;margin-top:3px}.group-pill{margin-left:auto;font-size:11px;color:#438462;background:#fff;border:1px solid #cee5d5;border-radius:30px;padding:5px 9px;white-space:nowrap}.post{padding:16px;border-top:1px solid #ebefea}.post-head{display:flex;align-items:center;gap:10px}.post-icon{height:32px;width:32px;background:#f4ece0;border-radius:9px;display:grid;place-items:center;color:#8c7454;font-size:14px}.post-name{font-size:14px;font-weight:700}.post-date{font-size:11px;color:#8e9b90}.post-preview{white-space:pre-wrap;overflow-wrap:anywhere;color:#4c5c50;line-height:1.75;font-size:13px;margin:12px 0 8px;max-height:110px;overflow:hidden}.post-preview.expanded{max-height:none}.post-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.quiet{border:0;background:transparent;color:#48755a;font-size:12px;padding:7px 4px;text-decoration:none}.quiet:disabled{color:#abb4ad;cursor:default}.source-note{font-size:11px;color:#9da69e}.single-list{padding:0 18px 18px}.single{border:1px solid #e4ebe4;border-radius:14px;padding:15px;margin-bottom:10px;display:flex;gap:12px;align-items:start}.single:last-child{margin-bottom:0}.single h3{font-size:14px;margin:0 0 5px}.single p{font-size:12px;color:#8c998f;margin:0 0 8px}.single input{accent-color:#367554;width:19px;height:19px;margin:2px 0}.hint{border:1px dashed #d4e0d5;border-radius:13px;color:#859487;padding:15px;font-size:12px;line-height:1.65;background:#fafcf9}.right{position:sticky;top:18px}.summary{display:flex;gap:10px;align-items:center}.count{font-size:11px;background:#eaf3ec;color:#4b8061;border-radius:50px;padding:6px 10px}.preview-wrap{margin:0 18px 15px;border:1px solid #e3e8e2;border-radius:14px;background:#fcfdfa;overflow:hidden}.preview-title{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid #edf0eb;font-size:12px;color:#849086}.preview-text{white-space:pre-wrap;overflow-wrap:anywhere;min-height:210px;max-height:490px;overflow:auto;margin:0;padding:17px;line-height:1.85;font-size:13px;color:#2c3930}.actions{padding:0 18px 18px}.primary{background:#337154;border:1px solid #337154;color:#fff;border-radius:12px;padding:14px;width:100%;font-weight:700}.primary:hover{background:#275b43}.secondary{background:#fff;border:1px solid #d5e0d6;color:#486555;border-radius:12px;padding:12px;width:100%;margin-top:9px}.notice{color:#738478;font-size:11px;line-height:1.75;padding:0 18px 20px}.notice strong{color:#536e5b}.status{padding:11px 18px;background:#f2f7f2;border-top:1px solid #e3ece4;color:#56785f;font-size:12px;display:none}.status.visible{display:block}.sample{font-size:12px;color:#907c4a;background:#f8f3e5;padding:5px 9px;border-radius:30px}.footer{max-width:1120px;margin:0 auto;padding:0 24px 32px;color:#96a397;font-size:12px}.links{display:flex;gap:8px;align-items:center}.divider{height:1px;background:#edf0eb;margin:12px 0}.config{padding:0 18px 18px}.config details{border:1px solid #e1e9e2;border-radius:12px;padding:12px 14px}.config summary{font-size:12px;color:#5a795f;cursor:pointer}.config textarea{width:100%;min-height:105px;border:1px solid #d8e3d8;border-radius:8px;padding:9px;font-size:12px;margin:12px 0 6px}.config button{border:1px solid #bed5c2;background:#edf5ee;border-radius:8px;padding:8px 12px;color:#346649;font-size:12px}.config p{color:#89968b;font-size:11px;line-height:1.6}.single .text{flex:1}
@@ -23,11 +23,34 @@
 .remote-debug pre{white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;background:#fff;border:1px solid #e5ede6;border-radius:8px;padding:10px}
 .remote-error{color:#a04736;font-size:12px}.remote-empty{font-size:13px;color:#7a8b7d;padding:15px}
 @media(max-width:600px){.remote-main{width:100%}.remote-button-row .remote-secondary{width:100%}}
-.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}.church-body{white-space:pre-wrap;overflow-wrap:anywhere;max-height:130px;overflow:hidden;line-height:1.75;font-size:13px;margin:12px 0;color:#4c5c50}.church-body.expanded{max-height:none}.church-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.church-copy{background:#337154;color:#fff;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}.church-link{font-size:12px;color:#397358}.church-notice{padding:16px;color:#758679;font-size:12px}.church-date{font-size:12px;color:#87968b;margin-left:9px}.church-expand{border:0;background:transparent;color:#397358;padding:8px 0;cursor:pointer;font-size:12px}</style>
+.remote-controls{margin:0 18px 20px;padding:18px;background:#f5f9f6}.remote-title{margin-bottom:14px}.remote-button-row .remote-main{min-width:180px}.remote-status{padding:10px 0 0}.remote-status.ok{color:#28734b;font-weight:700}.remote-status.error{color:#ac3e36;font-weight:700}.post-head .post-select{height:18px;width:18px;accent-color:#337154;cursor:pointer;margin:0 2px 0 0}.group-top{cursor:pointer}.group-top .group-pill{flex-shrink:0}.remote-secondary[hidden]{display:none!important}.remote-debug[hidden]{display:none!important}@media(max-width:600px){.remote-token-row input{min-width:0}.panel-head{align-items:flex-start}}.church-body{white-space:pre-wrap;overflow-wrap:anywhere;max-height:130px;overflow:hidden;line-height:1.75;font-size:13px;margin:12px 0;color:#4c5c50}.church-body.expanded{max-height:none}.church-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.church-copy{background:#337154;color:#fff;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}.church-link{font-size:12px;color:#397358}.church-notice{padding:16px;color:#758679;font-size:12px}.church-date{font-size:12px;color:#87968b;margin-left:9px}.church-expand{border:0;background:transparent;color:#397358;padding:8px 0;cursor:pointer;font-size:12px}
+:root{color:#263930;background:#f8f3eb}
+body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
+.layout{max-width:948px}
+.top{min-height:168px;margin:0 0 22px;padding:26px clamp(18px,5vw,36px);overflow:hidden;border-radius:20px;background:radial-gradient(ellipse at 87% 30%,#345c48,transparent 55%),#173e32;color:#fff8ec;box-shadow:0 12px 26px #173e3224}
+.brand{min-width:0}.brand strong{font-size:clamp(22px,5vw,36px);line-height:1.3}
+.brand .small{color:#f2d9a5;margin-bottom:5px;font-size:13px}
+.logo{flex:none;background:#ffffff17;color:#ffe09d;border:1px solid #ffe09d60}
+.christmas-star{flex:none;color:#f2d9a5;font-size:clamp(24px,7vw,68px);line-height:1;opacity:.85}
+.panel{border-color:#e7dfd2}.remote-controls,.group-top,.date-controls{background:#f5f0e7}
+.primary,.remote-main,.date-controls #dailyLookup,.daily-copy,.church-copy{background:#8b2935;border-color:#8b2935}
+.primary:hover,.remote-main:hover:not(:disabled),.daily-copy:hover:not(:disabled){background:#6c1d28}
+.daily-copy:disabled,.daily-batch-copy:disabled{background:#eae5df;border-color:#eae5df;color:#655b55;cursor:default}
+.daily-selection{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:0 18px 12px;padding:12px 15px;border:1px solid #e7dfd2;border-radius:12px;background:#fffbf5}
+.daily-selection label,.daily-article-label{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:700;min-height:32px}
+.daily-selection input,.daily-article-label input{flex:none;accent-color:#367554;width:19px;height:19px;margin:0}
+.daily-article-label h3{margin:0}
+.daily-batch-copy{margin:0 18px 10px;width:calc(100% - 36px)}
+#dailyCopyStatus{margin:0;overflow-wrap:anywhere}
+@media(max-width:600px){.top{min-height:126px}.brand{gap:9px}.logo{width:36px;height:36px}.date-controls input{min-width:0;max-width:100%}}
+</style>
 </head>
 <body>
 <main class="layout">
-  <header class="top"><div class="brand"><div class="logo">✦</div><div><strong>每日分享工作台</strong></div></div></header>
+  <header class="top">
+    <div class="brand"><div class="logo" aria-hidden="true">✦</div><div><div class="small">東海靈糧堂・聖誕平安</div><strong>每日分享工作台</strong></div></div>
+    <span class="christmas-star" aria-hidden="true">✧</span>
+  </header>
 
   <div class="columns" style="grid-template-columns:1fr;max-width:900px;margin:0 auto">
    <section>
@@ -49,8 +72,14 @@
        <div class="group-top"><span><strong>第三步｜查看東海靈糧堂最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
        <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
      </div>
-     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期，核對原文，再直接複製每一篇</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
-     <div class="single-list" id="dailyArticles"></div><div id="others" style="display:none"></div>
+     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期並核對原文，可單篇複製或一次複製勾選的文章</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
+     <div class="daily-selection">
+       <label><input type="checkbox" id="dailySelectAll" disabled>全選可複製的文章</label>
+       <span class="count" id="dailySelectionCount" role="status">已選 0 篇</span>
+     </div>
+     <div class="single-list" id="dailyArticles"></div>
+     <button type="button" class="primary daily-batch-copy" id="dailyCopySelected" disabled>複製勾選文章</button>
+     <p id="dailyCopyStatus" class="notice" role="status">查詢後可勾選有內容的文章。</p><div id="others" style="display:none"></div>
     </div>
    </section>
    <aside class="right" style="display:none"><div class="panel">
@@ -323,22 +352,58 @@ renderChurch();
 (function(){
 'use strict';
 const $=s=>document.getElementById(s);
-const sample=[
-'2026/11/16天父的信\n親愛的孩子\n當你的口舌被我潔淨、你的生命被我修剪之後，你已準備好承擔使命。不要害怕自己的不完全，因為能力是在人的軟弱上顯得完全。聽見我的呼召了嗎？「我可以差遣誰呢？」願你勇敢回應說：「我在這裡，請差遣我！」去用被醫治的口舌祝福世界。\n愛你的天父',
-'2026/11/16為職場禱告\n賽6:8我又聽見主的聲音說：我可以差遣誰呢？誰肯為我們去呢？我說：我在這裡，請差遣我！\n感謝主煉淨我們的口舌與心思。求祢在____的職場上大大使用我們，把那些受傷、疲憊的靈魂帶到我們身邊。當祢發出呼召時，我們願意放下心中的恐懼與保留，宣告說：「我在這裡，請差遣我！」願我們的工作與言語成為祢榮耀的見證。奉主耶穌的名禱告，阿們！',
-'2026/11/16為兒女禱告\n箴18:13未曾聽完先回答的便是他的愚昧和羞辱。\n求天父保守_____，挪去我們急躁搶話的習慣，使我們學會尊重他人、先聽後說。願祢恩待我們的未來，將我們分別為聖，成為世代中合乎祢心意的器皿。無論我們將來走到哪裡，都帶著溫柔與智慧，一生為祢發光，榮耀主名。奉主耶穌的名禱告，阿們！'
-];
 async function copy(value,target){try{await navigator.clipboard.writeText(value);target.textContent='已複製 ✓';setTimeout(()=>target.textContent='複製這一篇',2000)}catch(e){window.prompt('請手動複製文字',value)}}
-$('directPrayerCopy').onclick=async()=>{const b=$('directPrayerCopy');await copy(sample.join('\n\n'),b);$('prayerCopyStatus').textContent='目前為 11/16 示範文字；尚未串接 B 電腦每日貼文資料。'};
 const sources=[{key:'stream',name:'荒漠甘泉',url:'https://www.fhl.net/stream/'},{key:'manna',name:'每日天糧',url:'https://biblepro.app/cbook/ym-tw-mrtl/catalog.html'},{key:'bible',name:'東海靈糧堂每日讀經',url:'https://win.thll.org.tw/Bible/'}];
 function node(t,cls,txt){const e=document.createElement(t);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+const dailySelectAll=$('dailySelectAll');
+const dailyCopySelected=$('dailyCopySelected');
+const dailyCopyStatus=$('dailyCopyStatus');
+const dailyChoices=new Map();
+
+function syncDailySelection(){
+ const available=[...dailyChoices.values()];
+ const count=available.filter(choice=>choice.checkbox.checked).length;
+ dailySelectAll.disabled=available.length===0;
+ dailySelectAll.checked=count>0&&count===available.length;
+ dailySelectAll.indeterminate=count>0&&count<available.length;
+ dailyCopySelected.disabled=count===0;
+ $('dailySelectionCount').textContent='已選 '+count+' 篇';
+}
+
+dailySelectAll.addEventListener('change',()=>{
+ for(const choice of dailyChoices.values()) choice.checkbox.checked=dailySelectAll.checked;
+ syncDailySelection();
+});
+
+dailyCopySelected.addEventListener('click',async()=>{
+ const selected=[...dailyChoices.values()].filter(choice=>choice.checkbox.checked);
+ if(!selected.length)return;
+ const date=$('articleDate').value;
+ const text=selected.map(choice=>date.replaceAll('-','/')+'｜'+choice.name+'\n'+choice.text).join('\n\n');
+ try{
+  await navigator.clipboard.writeText(text);
+  if($('articleDate').value===date) dailyCopyStatus.textContent='已複製 '+selected.length+' 篇文章，可貼到 LINE。';
+ }catch(e){
+  window.prompt('請手動複製以下文字',text);
+ }
+});
+
 function show(items){
- const target=$('dailyArticles');target.replaceChildren();const day=$('articleDate').value;
+ const target=$('dailyArticles');target.replaceChildren();dailyChoices.clear();const day=$('articleDate').value;
  for(const s of sources){
  const res=items?.find(x=>x.key===s.key);
  const post=res?.ok?res.post:null;
  const box=node('article','single');const inner=node('div','text');
- inner.append(node('h3',null,s.name));
+ const text=typeof post?.text==='string'?post.text.trim():'';
+ const label=node('label','daily-article-label');
+ const checkbox=node('input');
+ checkbox.type='checkbox';
+ checkbox.disabled=!text;
+ checkbox.checked=Boolean(text);
+ checkbox.addEventListener('change',syncDailySelection);
+ label.append(checkbox,node('h3',null,s.name));
+ inner.append(label);
+ if(text) dailyChoices.set(s.key,{checkbox,name:s.name,text});
  inner.append(node('div','daily-state',day.replaceAll('-','/')+' · '+(!res?'待查詢':post?(post.status==='chapters'?'取得章節資料':'已讀取文章'):'讀取失敗')));
  if(post){inner.append(node('div','daily-text',post.text||'（無文字）'))}
  else if(res&&!res.ok){inner.append(node('div','daily-state',res.error||'無法擷取這一天的資料'))}
@@ -346,9 +411,11 @@ function show(items){
  const actions=node('div','single-actions');actions.style.marginTop='12px';
  const u=s.key==='bible'?'https://win.thll.org.tw/Bible/':(post?.url||res?.url||s.url);
  try{const v=new URL(u);if(v.protocol==='https:'){const a=node('a','daily-source','查看來源原文 ↗');a.href=v.href;a.target='_blank';a.rel='noopener noreferrer';actions.append(a)}}catch(e){}
- const b=node('button','daily-copy','複製這一篇');b.disabled=!post?.text;b.onclick=()=>copy(post.text,b);actions.append(b);
+ const b=node('button','daily-copy','複製這一篇');b.disabled=!text;b.onclick=()=>copy(post.text,b);actions.append(b);
  inner.append(actions);box.append(inner);target.append(box);
  }
+ syncDailySelection();
+ dailyCopyStatus.textContent=dailyChoices.size?'核對原文後，可複製勾選的文章。':'有內容的文章開放勾選。';
 }
 function taipeiToday(now=new Date()){
  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
@@ -361,7 +428,7 @@ function moveDay(n){const day=$('articleDate');if(!day.value)return;const d=new 
 $('previousDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);
 $('dailyLookup').onclick=async()=>{
  const b=$('dailyLookup'),date=$('articleDate').value;if(!date)return;
- b.disabled=true;$('dailyState').textContent='正在讀取 '+date+' 的三個來源…';
+ show();b.disabled=true;$('dailyState').textContent='正在讀取 '+date+' 的三個來源…';
  try{
  const res=await fetch('https://thll-daily-share-source-test.dw5000-tw.workers.dev/api/date?date='+encodeURIComponent(date),{cache:'no-store',signal:AbortSignal.timeout(25000)});
  if(!res.ok)throw Error('查詢服務 HTTP '+res.status);
