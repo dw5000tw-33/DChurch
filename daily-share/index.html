@@ -78,7 +78,7 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
      <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>勾選要分享的每日文章，每篇各一則。</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
      <div class="single-list" id="dailyArticles"></div>
      <section class="morning-card" aria-labelledby="morningCardTitle">
-       <h3 id="morningCardTitle">早安圖</h3>
+       <label class="daily-article-label"><input type="checkbox" id="morningCardCheck" disabled><h3 id="morningCardTitle">早安圖</h3></label>
        <div id="morningCardState" class="daily-state" role="status">按「查詢文章」查看所選日期的早安圖。</div>
        <img id="morningCardImage" alt="" hidden>
      </section>
@@ -420,10 +420,11 @@ function syncDailySelection(){
  const count=available.filter(choice=>choice.checkbox.checked).length;
  const {prayer,church,missing}=upperShare.get();
  const prayerCount=Number(Boolean(prayer)),churchCount=Number(Boolean(church));
- const total=count+prayerCount+churchCount;
- dailyShareLine.disabled=!lineReady||sharingLine||total===0;
+ const morningCount=Number(morningCardCheck.checked&&!morningCardCheck.disabled);
+ const total=count+prayerCount+churchCount+morningCount;
+ dailyShareLine.disabled=!lineReady||sharingLine||total===0||total>5;
  dailyLineReconnect.disabled=sharingLine;
- $('lineShareSummary').textContent='預計分享 '+total+' 則（禱告 '+prayerCount+'、教會貼文 '+churchCount+'、每日文章 '+count+'）。'+(missing.length?'尚未取得，將略過：'+missing.join('、')+'。':'');
+ $('lineShareSummary').textContent='預計分享 '+total+' 則（禱告 '+prayerCount+'、教會貼文 '+churchCount+'、每日文章 '+count+'、早安圖 '+morningCount+'）。'+(total>5?'LINE 一次最多分享 5 則，請取消勾選一項。':'')+(missing.length?'尚未取得，將略過：'+missing.join('、')+'。':'');
 }
 
 document.addEventListener('upper-share-change',syncDailySelection);
@@ -431,7 +432,7 @@ document.addEventListener('upper-share-change',syncDailySelection);
 
 function saveLineSelection(){
  const keys=[...dailyChoices.values()].filter(item=>item.checkbox.checked).map(item=>item.checkbox.value);
- sessionStorage.setItem(lineRestoreKey,JSON.stringify({date:$('articleDate').value,keys,upper:upperShare.save()}));
+ sessionStorage.setItem(lineRestoreKey,JSON.stringify({date:$('articleDate').value,keys,morningChecked:morningCardCheck.checked,upper:upperShare.save()}));
 }
 
 dailyLineReconnect.addEventListener('click',()=>{
@@ -454,13 +455,17 @@ dailyShareLine.addEventListener('click',async()=>{
  if(prayer)articles.push({name:'禱告文章合輯',text:prayer});
  if(church)articles.push({name:'東海靈糧堂貼文',text:church});
  articles.push(...choices.map(choice=>({name:choice.name,text:choice.text})));
- if(!articles.length)return;
+
  const oversized=articles.find(article=>article.text.length>5000);
  if(oversized){
   dailyLineStatus.textContent='「'+oversized.name+'」超過 LINE 單則文字上限，請取消勾選後再分享其他篇。';
   return;
  }
  const messages=articles.map(article=>({type:'text',text:article.text}));
+ if(morningCardCheck.checked&&!morningCardCheck.disabled){
+  messages.push({type:'image',originalContentUrl:morningCardImage.src,previewImageUrl:morningCardImage.src});
+ }
+ if(!messages.length||messages.length>5)return;
  sharingLine=true;
  let waitingNotice;
  $('dailyLineOpenHelp').hidden=true;
@@ -517,7 +522,7 @@ async function initializeLineShare(){
   if(!saved||!/^\d{4}-\d{2}-\d{2}$/.test(saved.date)||!Array.isArray(saved.keys))return;
   $('articleDate').value=saved.date;
   if(saved.upper)upperShare.restore(saved.upper);
-  if(saved.keys.length)await lookupDailyArticles(saved.keys);
+  if(saved.keys.length||saved.morningChecked)await lookupDailyArticles(saved.keys,Boolean(saved.morningChecked));
   syncDailySelection();
   dailyLineStatus.textContent='LINE 已登入。確認勾選內容後，再按「分享到 LINE」。';
  }catch(e){
@@ -556,6 +561,8 @@ function show(items,selectedKeys){
 }
 const morningCardState=$('morningCardState');
 const morningCardImage=$('morningCardImage');
+const morningCardCheck=$('morningCardCheck');
+morningCardCheck.addEventListener('change',syncDailySelection);
 let morningCardRequest=0;
 
 function resetMorningCard(message){
@@ -563,11 +570,14 @@ function resetMorningCard(message){
  morningCardImage.onload=null;
  morningCardImage.onerror=null;
  morningCardImage.hidden=true;
+ morningCardCheck.checked=false;
+ morningCardCheck.disabled=true;
  morningCardImage.removeAttribute('src');
+ syncDailySelection();
  morningCardState.textContent=message;
 }
 
-async function lookupMorningCard(date){
+async function lookupMorningCard(date,checked){
  resetMorningCard('正在讀取 '+date+' 的早安圖…');
  const request=morningCardRequest;
  try{
@@ -584,6 +594,9 @@ async function lookupMorningCard(date){
   morningCardImage.onload=()=>{
    if(request!==morningCardRequest)return;
    morningCardImage.hidden=false;
+   morningCardCheck.disabled=false;
+   morningCardCheck.checked=checked;
+   syncDailySelection();
    morningCardState.textContent=date;
   };
   morningCardImage.onerror=()=>{
@@ -601,12 +614,12 @@ function taipeiToday(now=new Date()){
  return get('year')+'-'+get('month')+'-'+get('day');
 }
 $('articleDate').value=taipeiToday();
-$('articleDate').addEventListener('change',()=>{show();$('dailyState').textContent='日期已更新，請按「查詢文章」。'});
-function moveDay(n){const day=$('articleDate');if(!day.value)return;const d=new Date(day.value+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);day.value=d.toISOString().slice(0,10);show();$('dailyState').textContent='日期已更新，請按「查詢文章」。'}
+$('articleDate').addEventListener('change',()=>{show();resetMorningCard('日期已更新，請按「查詢文章」。');$('dailyState').textContent='日期已更新，請按「查詢文章」。'});
+function moveDay(n){const day=$('articleDate');if(!day.value)return;const d=new Date(day.value+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);day.value=d.toISOString().slice(0,10);show();resetMorningCard('日期已更新，請按「查詢文章」。');$('dailyState').textContent='日期已更新，請按「查詢文章」。'}
 $('previousDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);
-async function lookupDailyArticles(selectedKeys){
+async function lookupDailyArticles(selectedKeys,morningChecked=false){
  const b=$('dailyLookup'),date=$('articleDate').value;if(!date)return;
- show();lookupMorningCard(date);b.disabled=true;$('dailyState').textContent='正在讀取 '+date+' 的三個來源…';
+ show();lookupMorningCard(date,morningChecked);b.disabled=true;$('dailyState').textContent='正在讀取 '+date+' 的三個來源…';
  try{
  const res=await fetch('https://thll-daily-share-source-test.dw5000-tw.workers.dev/api/date?date='+encodeURIComponent(date),{cache:'no-store',signal:AbortSignal.timeout(25000)});
  if(!res.ok)throw Error('查詢服務 HTTP '+res.status);
