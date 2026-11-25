@@ -617,7 +617,7 @@ $('articleDate').value=taipeiToday();
 $('articleDate').addEventListener('change',()=>{show();resetMorningCard('日期已更新，請按「查詢文章」。');$('dailyState').textContent='日期已更新，請按「查詢文章」。'});
 function moveDay(n){const day=$('articleDate');if(!day.value)return;const d=new Date(day.value+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);day.value=d.toISOString().slice(0,10);show();resetMorningCard('日期已更新，請按「查詢文章」。');$('dailyState').textContent='日期已更新，請按「查詢文章」。'}
 $('previousDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);
-async function lookupDailyArticles(selectedKeys,morningChecked=false){
+async function lookupDailyArticles(selectedKeys,morningChecked=true){
  const b=$('dailyLookup'),date=$('articleDate').value;if(!date)return;
  show();lookupMorningCard(date,morningChecked);b.disabled=true;$('dailyState').textContent='正在讀取 '+date+' 的三個來源…';
  try{
