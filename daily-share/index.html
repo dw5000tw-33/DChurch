@@ -459,7 +459,7 @@ const entryCard={
         "action": {
           "type": "uri",
           "label": "分享這張卡片",
-          "uri": "https://liff.line.me/2012787158-Ysnxc1fZ#shareEntryCard"
+          "uri": "https://liff.line.me/2012787158-Ysnxc1fZ?share=entry-card"
         }
       }
     ]
@@ -521,9 +521,13 @@ dailyShareLine.addEventListener('click',async()=>{
  await shareLineMessages(messages);
 });
 
-shareEntryCard.addEventListener('click',()=>shareLineMessages([
- {type:'flex',altText:'東海靈糧堂｜每日分享工作台',contents:entryCard}
-],true));
+function shareEntryCardToLine(){
+ return shareLineMessages([
+  {type:'flex',altText:'東海靈糧堂｜每日分享工作台',contents:entryCard}
+ ],true);
+}
+
+shareEntryCard.addEventListener('click',shareEntryCardToLine);
 
 async function shareLineMessages(messages,isEntryCard=false){
  if(!lineReady||sharingLine)return;
@@ -535,7 +539,7 @@ async function shareLineMessages(messages,isEntryCard=false){
   if(!window.liff.isLoggedIn()){
    saveLineSelection();
    dailyLineStatus.textContent='請先登入 LINE。';
-   window.liff.login({redirectUri:location.origin+location.pathname+(isEntryCard?'#shareEntryCard':'')});
+   window.liff.login({redirectUri:location.origin+location.pathname+(isEntryCard?'?share=entry-card':'')});
    return;
   }
   if(!window.liff.isApiAvailable('shareTargetPicker')){
@@ -574,10 +578,17 @@ async function initializeLineShare(){
   });
   await window.liff.init({liffId});
   lineReady=true;
-  if(location.hash==='#shareEntryCard')shareEntryCard.scrollIntoView({block:'center'});
    $('dailyLineReconnectHelp').hidden=window.liff.isInClient();
   dailyLineStatus.textContent='勾選完成後，選擇 LINE 群組並確認分享。';
   syncDailySelection();
+  const isEntryCardLink=new URLSearchParams(location.search).get('share')==='entry-card'||location.hash==='#shareEntryCard';
+  if(isEntryCardLink){
+   shareEntryCard.scrollIntoView({block:'center'});
+   dailyLineStatus.textContent='按「分享入口卡片」，即可選擇 LINE 群組。';
+   if(window.liff.isInClient()&&window.liff.isLoggedIn()){
+    void shareEntryCardToLine();
+   }
+  }
   if(!window.liff.isLoggedIn())return;
   const saved=JSON.parse(sessionStorage.getItem(lineRestoreKey)||'null');
   sessionStorage.removeItem(lineRestoreKey);
@@ -586,7 +597,7 @@ async function initializeLineShare(){
   if(saved.upper)upperShare.restore(saved.upper);
   if(saved.keys.length||saved.morningChecked)await lookupDailyArticles(saved.keys,Boolean(saved.morningChecked));
   syncDailySelection();
-  dailyLineStatus.textContent='LINE 已登入。請再按一次要使用的分享按鈕。';
+  if(!isEntryCardLink)dailyLineStatus.textContent='LINE 已登入。請再按一次要使用的分享按鈕。';
  }catch(e){
   if(!lineReady)dailyLineStatus.textContent='LINE 連線失敗，請確認 LIFF 設定後重新整理。';
  }
