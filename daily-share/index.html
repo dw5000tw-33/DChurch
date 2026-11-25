@@ -81,6 +81,7 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
      <div class="single-list" id="dailyArticles"></div>
      <button type="button" class="primary daily-batch-copy" id="dailyShareLine" disabled>分享到 LINE</button>
      <p id="dailyLineStatus" class="notice" role="status">正在連接 LINE…</p>
+     <p id="dailyLineOpenHelp" class="notice" hidden><a id="dailyLineOpen" href="https://liff.line.me/2012787158-Ysnxc1fZ">用手機 LINE 開啟工作台</a></p>
      <button type="button" class="primary daily-batch-copy" id="dailyCopySelected" disabled>複製下一篇</button>
      <p id="dailyCopyStatus" class="notice" role="status">查詢後可勾選有內容的文章。</p><div id="others" style="display:none"></div>
     </div>
@@ -425,6 +426,7 @@ dailyShareLine.addEventListener('click',async()=>{
   return;
  }
  sharingLine=true;
+ $('dailyLineOpenHelp').hidden=true;
  syncDailySelection();
  try{
   if(!window.liff.isLoggedIn()){
@@ -434,7 +436,11 @@ dailyShareLine.addEventListener('click',async()=>{
    return;
   }
   if(!window.liff.isApiAvailable('shareTargetPicker')){
-   dailyLineStatus.textContent='目前無法開啟 LINE 群組選擇器，請確認 LIFF 已啟用分享功能。';
+   const inLine=window.liff.isInClient();
+   $('dailyLineOpenHelp').hidden=inLine;
+   dailyLineStatus.textContent=inLine
+    ?'手機 LINE 目前回報無法開啟群組選擇器（LINE '+(window.liff.getLineVersion()||'版本未知')+'）。請關閉工作台，再從 LINE 聊天室點開 LIFF 連結重試。'
+    :'目前在外部瀏覽器，LINE 群組選擇器無法開啟。請從手機 LINE 聊天室點開下方連結。';
    return;
   }
   const result=await window.liff.shareTargetPicker(messages,{isMultiple:true});
