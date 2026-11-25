@@ -42,7 +42,6 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
 .daily-selection input,.daily-article-label input{flex:none;accent-color:#367554;width:19px;height:19px;margin:0}
 .daily-article-label h3{margin:0}
 .daily-batch-copy{margin:0 18px 10px;width:calc(100% - 36px)}
-#dailyCopyStatus{margin:0;overflow-wrap:anywhere}
 @media(max-width:600px){.top{min-height:126px}.brand{gap:9px}.logo{width:36px;height:36px}.date-controls input{min-width:0;max-width:100%}}
 </style>
 </head>
@@ -82,8 +81,7 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
      <button type="button" class="primary daily-batch-copy" id="dailyShareLine" disabled>分享到 LINE</button>
      <p id="dailyLineStatus" class="notice" role="status">正在連接 LINE…</p>
      <p id="dailyLineOpenHelp" class="notice" hidden><a id="dailyLineOpen" href="https://liff.line.me/2012787158-Ysnxc1fZ">用手機 LINE 開啟工作台</a></p>
-     <button type="button" class="primary daily-batch-copy" id="dailyCopySelected" disabled>複製下一篇</button>
-     <p id="dailyCopyStatus" class="notice" role="status">查詢後可勾選有內容的文章。</p><div id="others" style="display:none"></div>
+     <div id="others" style="display:none"></div>
     </div>
    </section>
    <aside class="right" style="display:none"><div class="panel">
@@ -360,10 +358,7 @@ async function copy(value,target){try{await navigator.clipboard.writeText(value)
 const sources=[{key:'stream',name:'荒漠甘泉',url:'https://www.fhl.net/stream/'},{key:'manna',name:'每日天糧',url:'https://biblepro.app/cbook/ym-tw-mrtl/catalog.html'},{key:'bible',name:'東海靈糧堂每日讀經',url:'https://win.thll.org.tw/Bible/'}];
 function node(t,cls,txt){const e=document.createElement(t);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
 const dailySelectAll=$('dailySelectAll');
-const dailyCopySelected=$('dailyCopySelected');
-const dailyCopyStatus=$('dailyCopyStatus');
 const dailyChoices=new Map();
-let copyingDailyArticle=false;
 const dailyShareLine=$('dailyShareLine');
 const dailyLineStatus=$('dailyLineStatus');
 const liffId=document.querySelector('meta[name="daily-share-liff-id"]').content.trim();
@@ -377,10 +372,7 @@ function syncDailySelection(){
  dailySelectAll.disabled=available.length===0;
  dailySelectAll.checked=count>0&&count===available.length;
  dailySelectAll.indeterminate=count>0&&count<available.length;
- const remaining=available.filter(choice=>choice.checkbox.checked&&!choice.copied).length;
- dailyCopySelected.disabled=copyingDailyArticle||remaining===0;
  dailyShareLine.disabled=!lineReady||sharingLine||count===0;
- dailyCopySelected.textContent=count>0&&remaining===0?'已複製所選文章':'複製下一篇';
  $('dailySelectionCount').textContent='已選 '+count+' 篇';
 }
 
@@ -389,30 +381,6 @@ dailySelectAll.addEventListener('change',()=>{
  syncDailySelection();
 });
 
-dailyCopySelected.addEventListener('click',async()=>{
- if(copyingDailyArticle)return;
- const choice=[...dailyChoices.values()].find(item=>item.checkbox.checked&&!item.copied);
- if(!choice)return;
- const date=$('articleDate').value.replaceAll('-','/');
- const text=date+'｜'+choice.name+'\n'+choice.text;
- copyingDailyArticle=true;
- syncDailySelection();
- try{
-  try{
-   await navigator.clipboard.writeText(text);
-  }catch(e){
-   if(window.prompt('請手動複製這一篇。複製後按確定，再到 LINE 貼上。',text)===null)return;
-  }
-  if(dailyChoices.get(choice.checkbox.value)===choice){
-   choice.copied=true;
-   dailyCopyStatus.textContent='「'+choice.name+'」可貼到 LINE。'+
-    ([...dailyChoices.values()].some(item=>item.checkbox.checked&&!item.copied)?'貼上後，再回來按「複製下一篇」。':'本次勾選的文章已依序複製。');
-  }
- }finally{
-  copyingDailyArticle=false;
-  syncDailySelection();
- }
-});
 
 dailyShareLine.addEventListener('click',async()=>{
  if(!lineReady||sharingLine)return;
@@ -495,7 +463,7 @@ function show(items,selectedKeys){
  checkbox.addEventListener('change',syncDailySelection);
  label.append(checkbox,node('h3',null,s.name));
  inner.append(label);
- if(text) dailyChoices.set(s.key,{checkbox,name:s.name,text,copied:false});
+ if(text) dailyChoices.set(s.key,{checkbox,name:s.name,text});
  inner.append(node('div','daily-state',day.replaceAll('-','/')+' · '+(!res?'待查詢':post?(post.status==='chapters'?'取得章節資料':'已讀取文章'):'讀取失敗')));
  if(post){inner.append(node('div','daily-text',post.text||'（無文字）'))}
  else if(res&&!res.ok){inner.append(node('div','daily-state',res.error||'無法擷取這一天的資料'))}
@@ -507,7 +475,6 @@ function show(items,selectedKeys){
  inner.append(actions);box.append(inner);target.append(box);
  }
  syncDailySelection();
- dailyCopyStatus.textContent=dailyChoices.size?'按「複製下一篇」，到 LINE 貼上這一篇，再回來複製下一篇。':'有內容的文章開放勾選。';
 }
 function taipeiToday(now=new Date()){
  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
