@@ -65,7 +65,7 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
         <details class="remote-debug" hidden><summary>診斷</summary><pre id="remoteDebug">尚無資料</pre></details>
       </div>
      <div class="group">
-      <label class="group-top"><input type="checkbox" id="groupCheck"><span><strong>第二步｜禱告文章三合一</strong><div class="sub">勾選後，天父的信、職場禱告與兒女禱告合成一則。</div></span><span class="group-pill" id="selectionCount">三合一</span></label>
+      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜禱告文章三合一</strong><div class="sub">勾選後，天父的信、職場禱告與兒女禱告合成一則。</div></span><span class="group-pill" id="selectionCount">三合一</span></label>
 <div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製貼文</button><p id="prayerCopyStatus" class="notice">更新貼文後，勾選要分享的文章。</p>
      </div>
      <div class="group" id="churchPanel">
@@ -111,7 +111,7 @@ let churchPosts=[];
 const churchShareCheck=$('churchShareCheck');
 let churchIssue='';
 const prayerShareCheck=$('groupCheck');
-let requestId=null,working=false,poller=null;
+let working=false;
 const info=$('remoteStatus'),diag=$('remoteDebug'),tokenEl=$('remoteToken');
 try{tokenEl.value=sessionStorage.getItem('dailyShareAdminToken')||''}catch(e){}
 tokenEl.addEventListener('input',()=>{try{sessionStorage.setItem('dailyShareAdminToken',tokenEl.value)}catch(e){}});
@@ -276,64 +276,89 @@ async function call(path,method='GET'){
  const response=await fetch(base+path,{method,headers:{Authorization:'Bearer '+token},cache:'no-store',signal:AbortSignal.timeout(20000)});
  let data;try{data=await response.json()}catch{throw Error('Cloudflare 回傳非 JSON（HTTP '+response.status+'）')}
  if(!response.ok){
-  if(response.status===401)throw Error('密碼不正確，請聯絡管理員。');
-  if(response.status===409)throw Error('目前正在更新，請稍後再試；若持續失敗請聯絡管理員。');
+  if(response.status===401)throw Object.assign(Error('密碼不正確，請聯絡管理員。'),{status:401});
+  if(response.status===409)throw Object.assign(Error('B 電腦仍有查詢進行中，請稍後再試。'),{status:409});
   throw Error('Cloudflare HTTP '+response.status+'：'+(data.error||'無法完成'));
  }
  return data;
 }
-function acceptState(state,onlyMatching){
+function acceptState(state){
  const item=state?.lastRead;
  debug({onlineHint:state.onlineHint,lastSeen:state.lastSeen,pending:state.pending,lastRead:item});
  if(!item){status('目前沒有可使用的貼文，請聯絡管理員。',true);return false}
- if(onlyMatching&&item.id!==requestId)return false;
- if(item.type!=='READ_PAGE'||!item.result||!Array.isArray(item.result.pages)){status('讀取資料格式不正確，請聯絡管理員。',true);return true}
+ if(item.type!=='READ_PAGE'||!item.result||!Array.isArray(item.result.pages))return false;
  // The B reader sets result.ok=false whenever ANY one of four pages fails.
  // Preserve successfully read prayer posts instead of discarding the whole batch.
  const extracted=parseResult(item.result);
- collected=extracted.mapped;
- churchShareCheck.checked=false;
- churchPosts=parseChurch(item.result);
+ collected=collected.map((post,i)=>extracted.mapped[i]||post);
+ const nextChurch=parseChurch(item.result);
+ if(nextChurch[0]?.link||(!churchPosts[0]?.link&&nextChurch.length))churchPosts=nextChurch;
  const churchPage=item.result.pages.find(p=>String(p.sourceUrl||p.pageUrl||'').includes('thll24615088')||String(p.pageName||'').includes('東海靈糧堂'));
- churchIssue=churchPage?.error
+ churchIssue=!churchPosts.length&&churchPage?.error
   ? '讀取未完成：'+churchPage.error+'。請在 B 電腦開啟東海靈糧堂 Facebook 粉專分頁，再按「更新貼文」。'
   : (!churchPosts.length?'本次沒有取得東海靈糧堂貼文，請檢查原始粉專是否已開啟。':'');
+ return true;
+}
+function reportUpdate(detail=''){
+ const prayerCount=collected.filter(Boolean).length;
+ const churchReady=Boolean(churchPosts[0]?.link);
+ const complete=prayerCount===3&&churchReady;
  render();
  renderChurch();
- const count=collected.filter(Boolean).length;
- const when=item.receivedAt?new Date(item.receivedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'}):'';
- status(count===3
-  ? (churchPosts.length?'三篇禱告與東海靈糧堂貼文已更新。':'三篇禱告已成功更新；東海靈糧堂尚未讀到，請查看第三步。')
-  : '成功取得 '+count+'/3 篇禱告文章；未取得的來源請聯絡管理員確認。',
-  count<3,count===3&&churchPosts.length>0);
- return true;
+ status(complete?'三篇禱告與東海靈糧堂貼文網址已更新。':
+  '取得 '+prayerCount+'/3 篇禱告，'+(churchReady?'已取得教會貼文網址。':'尚未取得教會貼文網址。')+(detail?' '+detail:''),
+  !complete,complete);
+}
+async function requestFacebookPosts(){
+ const sent=await call('/api/read-request','POST');
+ if(!sent.commandId)throw Error('查詢服務未回傳指令編號。');
+ debug({stage:'requested',commandId:sent.commandId,expiresAt:sent.expiresAt});
+ const deadline=Date.now()+175000;
+ let lastError;
+ let lastState;
+ while(Date.now()<deadline){
+  await new Promise(resolve=>setTimeout(resolve,lastState||lastError?5000:1300));
+  try{
+   lastState=await call('/api/read-status');
+   lastError=null;
+  }catch(err){
+   if(err.status===401)throw err;
+   lastError=err;
+   continue;
+  }
+  if(lastState?.lastRead?.id===sent.commandId)return lastState;
+ }
+ if(lastError)throw Error('等待 B 電腦回傳逾時，最後一次狀態查詢未成功。');
+ throw Error('等待 B 電腦回傳逾時。');
 }
 $('remoteRead').onclick=async()=>{
  if(working)return;
- clearInterval(poller);requestId=null;collected=[null,null,null];churchShareCheck.checked=false;churchPosts=[];churchIssue='';render();renderChurch();setBusy(true);
- status('正在更新貼文，請稍候…');
+ collected=[null,null,null];churchPosts=[];churchIssue='';
+ prayerShareCheck.checked=true;churchShareCheck.checked=false;
+ setBusy(true);render();renderChurch();
+ let lastError='';
  try{
-  const sent=await call('/api/read-request','POST');
-  requestId=sent.commandId;debug({stage:'requested',commandId:requestId,expiresAt:sent.expiresAt});
-  status('正在更新貼文，約需數十秒…');
-  const deadline=Date.now()+175000;
-  let checking=false;
-  const check=async()=>{
-   if(checking)return;checking=true;
+  for(let attempt=1;attempt<=2;attempt++){
+   status(attempt===1?'正在更新貼文，請稍候…':'第一次未讀齊，正在自動重試（2/2）…');
    try{
-    const state=await call('/api/read-status');
-    if(acceptStateIfCurrent(state)){clearInterval(poller);setBusy(false)}
-    else if(Date.now()>deadline){clearInterval(poller);setBusy(false);status('更新逾時，請聯絡管理員。',true)}
-   }catch(err){clearInterval(poller);setBusy(false);status('更新失敗，請聯絡管理員。',true)}
-   finally{checking=false}
-  };
-  function acceptStateIfCurrent(state){if(state?.lastRead?.id!==requestId)return false;return acceptState(state,true)}
-  poller=setInterval(check,5000);setTimeout(check,1300);
- }catch(err){setBusy(false);status(err.message,true)}
+    const state=await requestFacebookPosts();
+    lastError=acceptState(state)?'':'B 電腦回傳的資料格式不正確。';
+    if(collected.every(Boolean)&&churchPosts[0]?.link)break;
+   }catch(err){
+    lastError=err.message;
+    if(err.status===401||err.status===409||!getToken())break;
+   }
+  }
+  reportUpdate(lastError||'兩次查詢後仍有來源未讀齊。');
+ }finally{setBusy(false)}
 };
 $('remoteLast').onclick=async()=>{
- if(working)return;setBusy(true);status('正在讀取 Cloudflare 最近一次回傳…');
- try{const state=await call('/api/read-status');acceptState(state,false)}catch(err){status(err.message,true)}
+ if(working)return;
+ setBusy(true);status('正在讀取 Cloudflare 最近一次回傳…');
+ try{
+  const state=await call('/api/read-status');
+  reportUpdate(acceptState(state)?'':'目前沒有可使用的回傳。');
+ }catch(err){status(err.message,true)}
  finally{setBusy(false)}
 };
 $('directPrayerCopy').onclick=async()=>{
