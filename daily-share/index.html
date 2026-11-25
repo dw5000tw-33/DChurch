@@ -413,12 +413,11 @@ dailyLineReconnect.addEventListener('click',()=>{
 dailyShareLine.addEventListener('click',async()=>{
  if(!lineReady||sharingLine)return;
  const choices=[...dailyChoices.values()].filter(item=>item.checkbox.checked);
- const date=$('articleDate').value;
  const {prayer,church}=upperShare.get();
  const articles=[];
  if(prayer)articles.push({name:'禱告文章合輯',text:prayer});
  if(church)articles.push({name:'東海靈糧堂貼文',text:church});
- articles.push(...choices.map(choice=>({name:choice.name,text:date.replaceAll('-','/')+'｜'+choice.name+'\n'+choice.text})));
+ articles.push(...choices.map(choice=>({name:choice.name,text:choice.text})));
  if(!articles.length)return;
  const oversized=articles.find(article=>article.text.length>5000);
  if(oversized){
