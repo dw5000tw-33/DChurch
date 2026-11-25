@@ -72,13 +72,13 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
        <div class="group-top"><span><strong>第三步｜查看東海靈糧堂最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
        <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
      </div>
-     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選擇日期並核對原文，可單篇複製或一次複製勾選的文章</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
+     <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>選好文章後，依序複製，每篇分開貼到 LINE。</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
      <div class="daily-selection">
        <label><input type="checkbox" id="dailySelectAll" disabled>全選可複製的文章</label>
        <span class="count" id="dailySelectionCount" role="status">已選 0 篇</span>
      </div>
      <div class="single-list" id="dailyArticles"></div>
-     <button type="button" class="primary daily-batch-copy" id="dailyCopySelected" disabled>複製勾選文章</button>
+     <button type="button" class="primary daily-batch-copy" id="dailyCopySelected" disabled>複製下一篇</button>
      <p id="dailyCopyStatus" class="notice" role="status">查詢後可勾選有內容的文章。</p><div id="others" style="display:none"></div>
     </div>
    </section>
@@ -359,6 +359,7 @@ const dailySelectAll=$('dailySelectAll');
 const dailyCopySelected=$('dailyCopySelected');
 const dailyCopyStatus=$('dailyCopyStatus');
 const dailyChoices=new Map();
+let copyingDailyArticle=false;
 
 function syncDailySelection(){
  const available=[...dailyChoices.values()];
@@ -366,7 +367,9 @@ function syncDailySelection(){
  dailySelectAll.disabled=available.length===0;
  dailySelectAll.checked=count>0&&count===available.length;
  dailySelectAll.indeterminate=count>0&&count<available.length;
- dailyCopySelected.disabled=count===0;
+ const remaining=available.filter(choice=>choice.checkbox.checked&&!choice.copied).length;
+ dailyCopySelected.disabled=copyingDailyArticle||remaining===0;
+ dailyCopySelected.textContent=count>0&&remaining===0?'已複製所選文章':'複製下一篇';
  $('dailySelectionCount').textContent='已選 '+count+' 篇';
 }
 
@@ -376,15 +379,27 @@ dailySelectAll.addEventListener('change',()=>{
 });
 
 dailyCopySelected.addEventListener('click',async()=>{
- const selected=[...dailyChoices.values()].filter(choice=>choice.checkbox.checked);
- if(!selected.length)return;
- const date=$('articleDate').value;
- const text=selected.map(choice=>date.replaceAll('-','/')+'｜'+choice.name+'\n'+choice.text).join('\n\n');
+ if(copyingDailyArticle)return;
+ const choice=[...dailyChoices.values()].find(item=>item.checkbox.checked&&!item.copied);
+ if(!choice)return;
+ const date=$('articleDate').value.replaceAll('-','/');
+ const text=date+'｜'+choice.name+'\n'+choice.text;
+ copyingDailyArticle=true;
+ syncDailySelection();
  try{
-  await navigator.clipboard.writeText(text);
-  if($('articleDate').value===date) dailyCopyStatus.textContent='已複製 '+selected.length+' 篇文章，可貼到 LINE。';
- }catch(e){
-  window.prompt('請手動複製以下文字',text);
+  try{
+   await navigator.clipboard.writeText(text);
+  }catch(e){
+   if(window.prompt('請手動複製這一篇。複製後按確定，再到 LINE 貼上。',text)===null)return;
+  }
+  if(dailyChoices.get(choice.checkbox.value)===choice){
+   choice.copied=true;
+   dailyCopyStatus.textContent='「'+choice.name+'」可貼到 LINE。'+
+    ([...dailyChoices.values()].some(item=>item.checkbox.checked&&!item.copied)?'貼上後，再回來按「複製下一篇」。':'本次勾選的文章已依序複製。');
+  }
+ }finally{
+  copyingDailyArticle=false;
+  syncDailySelection();
  }
 });
 
@@ -398,12 +413,13 @@ function show(items){
  const label=node('label','daily-article-label');
  const checkbox=node('input');
  checkbox.type='checkbox';
+ checkbox.value=s.key;
  checkbox.disabled=!text;
  checkbox.checked=Boolean(text);
  checkbox.addEventListener('change',syncDailySelection);
  label.append(checkbox,node('h3',null,s.name));
  inner.append(label);
- if(text) dailyChoices.set(s.key,{checkbox,name:s.name,text});
+ if(text) dailyChoices.set(s.key,{checkbox,name:s.name,text,copied:false});
  inner.append(node('div','daily-state',day.replaceAll('-','/')+' · '+(!res?'待查詢':post?(post.status==='chapters'?'取得章節資料':'已讀取文章'):'讀取失敗')));
  if(post){inner.append(node('div','daily-text',post.text||'（無文字）'))}
  else if(res&&!res.ok){inner.append(node('div','daily-state',res.error||'無法擷取這一天的資料'))}
@@ -415,7 +431,7 @@ function show(items){
  inner.append(actions);box.append(inner);target.append(box);
  }
  syncDailySelection();
- dailyCopyStatus.textContent=dailyChoices.size?'核對原文後，可複製勾選的文章。':'有內容的文章開放勾選。';
+ dailyCopyStatus.textContent=dailyChoices.size?'按「複製下一篇」，到 LINE 貼上這一篇，再回來複製下一篇。':'有內容的文章開放勾選。';
 }
 function taipeiToday(now=new Date()){
  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
