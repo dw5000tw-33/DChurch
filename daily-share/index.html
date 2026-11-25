@@ -84,6 +84,7 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
      </section>
      <p id="lineShareSummary" class="notice" role="status"></p>
      <button type="button" class="primary daily-batch-copy" id="dailyShareLine" disabled>分享到 LINE</button>
+     <button type="button" class="secondary daily-batch-copy line-reconnect-button" id="shareEntryCard" disabled>分享入口卡片</button>
      <p id="dailyLineStatus" class="notice" role="status">正在連接 LINE…</p>
      <div id="dailyLineReconnectHelp" hidden>
        <p class="notice line-reconnect-note">如果未成功出現群組畫面，請重新登入 LINE。</p>
@@ -414,6 +415,56 @@ const liffId=document.querySelector('meta[name="daily-share-liff-id"]').content.
 const lineRestoreKey='dailyShareLineSelection';
 let lineReady=false;
 let sharingLine=false;
+const shareEntryCard=$('shareEntryCard');
+const entryCard={
+  "type": "bubble",
+  "hero": {
+    "type": "image",
+    "url": "https://dw5000tw-33.github.io/DChurch/daily-share/flex-line-banner.jpg",
+    "size": "full",
+    "aspectRatio": "1:1",
+    "aspectMode": "fit",
+    "action": {
+      "type": "uri",
+      "uri": "https://liff.line.me/2012787158-Ysnxc1fZ"
+    }
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "paddingAll": "16px",
+    "spacing": "md",
+    "backgroundColor": "#143C32",
+    "contents": [
+      {
+        "type": "text",
+        "text": "弟兄姊妹平安！歡迎把今天的讀經、靈修文章和早安圖分享給小組或家人。",
+        "size": "sm",
+        "color": "#EDF4EF",
+        "wrap": true
+      },
+      {
+        "type": "button",
+        "style": "primary",
+        "color": "#8C293C",
+        "action": {
+          "type": "uri",
+          "label": "開啟每日分享工作台",
+          "uri": "https://liff.line.me/2012787158-Ysnxc1fZ"
+        }
+      },
+      {
+        "type": "button",
+        "style": "secondary",
+        "action": {
+          "type": "uri",
+          "label": "分享這張卡片",
+          "uri": "https://liff.line.me/2012787158-Ysnxc1fZ#shareEntryCard"
+        }
+      }
+    ]
+  }
+};
 
 function syncDailySelection(){
  const available=[...dailyChoices.values()];
@@ -423,6 +474,7 @@ function syncDailySelection(){
  const morningCount=Number(morningCardCheck.checked&&!morningCardCheck.disabled);
  const total=count+prayerCount+churchCount+morningCount;
  dailyShareLine.disabled=!lineReady||sharingLine||total===0||total>5;
+ shareEntryCard.disabled=!lineReady||sharingLine;
  dailyLineReconnect.disabled=sharingLine;
  $('lineShareSummary').textContent='預計分享 '+total+' 則（禱告 '+prayerCount+'、教會貼文 '+churchCount+'、每日文章 '+count+'、早安圖 '+morningCount+'）。'+(total>5?'LINE 一次最多分享 5 則，請取消勾選一項。':'')+(missing.length?'尚未取得，將略過：'+missing.join('、')+'。':'');
 }
@@ -466,6 +518,15 @@ dailyShareLine.addEventListener('click',async()=>{
   messages.push({type:'image',originalContentUrl:morningCardImage.src,previewImageUrl:morningCardImage.src});
  }
  if(!messages.length||messages.length>5)return;
+ await shareLineMessages(messages);
+});
+
+shareEntryCard.addEventListener('click',()=>shareLineMessages([
+ {type:'flex',altText:'東海靈糧堂｜每日分享工作台',contents:entryCard}
+],true));
+
+async function shareLineMessages(messages,isEntryCard=false){
+ if(!lineReady||sharingLine)return;
  sharingLine=true;
  let waitingNotice;
  $('dailyLineOpenHelp').hidden=true;
@@ -474,7 +535,7 @@ dailyShareLine.addEventListener('click',async()=>{
   if(!window.liff.isLoggedIn()){
    saveLineSelection();
    dailyLineStatus.textContent='請先登入 LINE。';
-   window.liff.login({redirectUri:location.origin+location.pathname});
+   window.liff.login({redirectUri:location.origin+location.pathname+(isEntryCard?'#shareEntryCard':'')});
    return;
   }
   if(!window.liff.isApiAvailable('shareTargetPicker')){
@@ -490,7 +551,7 @@ dailyShareLine.addEventListener('click',async()=>{
    dailyLineStatus.textContent='仍在等待 LINE 回應。若已按下分享，先到群組確認是否收到。若沒有視窗，請查看瀏覽器是否封鎖彈出視窗。';
   },12000);
   const result=await window.liff.shareTargetPicker(messages,{isMultiple:true});
-  dailyLineStatus.textContent=result?.status==='success'?'LINE 已分享 '+messages.length+' 則訊息。':'已取消 LINE 分享。';
+  dailyLineStatus.textContent=result?.status==='success'?(isEntryCard?'已分享每日分享工作台入口卡片。':'LINE 已分享 '+messages.length+' 則訊息。'):'已取消 LINE 分享。';
  }catch(e){
   dailyLineStatus.textContent=window.liff.isInClient()?'手機 LINE 分享未完成。請先確認群組是否收到，再關閉工作台、從 LIFF 專用入口重開。':'LINE 分享未完成。請先確認群組是否收到，再檢查彈出視窗或重新登入 LINE。';
  }finally{
@@ -498,7 +559,7 @@ dailyShareLine.addEventListener('click',async()=>{
   sharingLine=false;
   syncDailySelection();
  }
-});
+}
 
 async function initializeLineShare(){
  if(!liffId)return;
@@ -513,6 +574,7 @@ async function initializeLineShare(){
   });
   await window.liff.init({liffId});
   lineReady=true;
+  if(location.hash==='#shareEntryCard')shareEntryCard.scrollIntoView({block:'center'});
    $('dailyLineReconnectHelp').hidden=window.liff.isInClient();
   dailyLineStatus.textContent='勾選完成後，選擇 LINE 群組並確認分享。';
   syncDailySelection();
@@ -524,7 +586,7 @@ async function initializeLineShare(){
   if(saved.upper)upperShare.restore(saved.upper);
   if(saved.keys.length||saved.morningChecked)await lookupDailyArticles(saved.keys,Boolean(saved.morningChecked));
   syncDailySelection();
-  dailyLineStatus.textContent='LINE 已登入。確認勾選內容後，再按「分享到 LINE」。';
+  dailyLineStatus.textContent='LINE 已登入。請再按一次要使用的分享按鈕。';
  }catch(e){
   if(!lineReady)dailyLineStatus.textContent='LINE 連線失敗，請確認 LIFF 設定後重新整理。';
  }
