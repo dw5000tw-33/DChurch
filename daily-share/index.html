@@ -65,20 +65,15 @@ body{background:radial-gradient(ellipse at top,#fffaf3,transparent 38rem)}
         <details class="remote-debug" hidden><summary>診斷</summary><pre id="remoteDebug">尚無資料</pre></details>
       </div>
      <div class="group">
-      <label class="group-top"><input type="checkbox" id="groupCheck" checked><span><strong>第二步｜選取禱告文章</strong><div class="sub">可全選或單獨勾選；每篇提供原始貼文出處，確認內容後再複製貼上 LINE。</div></span><span class="group-pill" id="selectionCount">已選 3 篇</span></label>
+      <label class="group-top"><input type="checkbox" id="groupCheck"><span><strong>第二步｜禱告文章三合一</strong><div class="sub">勾選後，天父的信、職場禱告與兒女禱告合成一則。</div></span><span class="group-pill" id="selectionCount">三合一</span></label>
 <div id="groupPosts"></div><button type="button" class="primary" style="width:calc(100% - 30px);margin:12px 15px 15px" id="directPrayerCopy">複製貼文</button><p id="prayerCopyStatus" class="notice">更新貼文後，勾選要分享的文章。</p>
      </div>
      <div class="group" id="churchPanel">
-       <div class="group-top"><span><strong>第三步｜查看東海靈糧堂最新貼文</strong><div class="sub">使用同一次更新取得的粉專內容，點原始貼文核對後，可單篇複製</div></span><span class="group-pill" id="churchCount">尚未讀取</span></div>
+       <label class="group-top"><input type="checkbox" id="churchShareCheck" disabled><span><strong>第三步｜東海靈糧堂原始貼文網址</strong><div class="sub">勾選後，只分享「查看原始貼文」的網址。</div></span><span class="group-pill" id="churchCount">尚未讀取</span></label>
        <div id="churchPosts"><div class="church-notice">更新貼文後，這裡會顯示取得的東海靈糧堂貼文。</div></div>
      </div>
      <div class="panel-head" style="padding-top:5px"><div><h2>其他每日文章</h2><p>勾選要分享的每日文章，每篇各一則。</p></div></div><div class="date-controls"><label for="articleDate">查詢日期</label><input id="articleDate" type="date"><button type="button" id="previousDay">前一天</button><button type="button" id="nextDay">後一天</button><button type="button" id="dailyLookup">查詢文章</button></div><p id="dailyState" class="notice">預設為台灣台北今天日期，可選其他日期再查詢三個來源。</p>
-     <div class="daily-selection">
-       <label><input type="checkbox" id="dailySelectAll" disabled>全選可複製的文章</label>
-       <span class="count" id="dailySelectionCount" role="status">已選 0 篇</span>
-     </div>
      <div class="single-list" id="dailyArticles"></div>
-     <div class="daily-selection"><label><input type="checkbox" id="includePrayerInLine">一併分享上方禱告文章（合成一則）</label></div>
      <p id="lineShareSummary" class="notice" role="status"></p>
      <button type="button" class="primary daily-batch-copy" id="dailyShareLine" disabled>分享到 LINE</button>
      <p id="dailyLineStatus" class="notice" role="status">正在連接 LINE…</p>
@@ -109,9 +104,9 @@ const sources=[
 ];
 let collected=[null,null,null];
 let churchPosts=[];
-const pickedChurch=new Set();
+const churchShareCheck=$('churchShareCheck');
 let churchIssue='';
-let selected=[true,true,true];
+const prayerShareCheck=$('groupCheck');
 let requestId=null,working=false,poller=null;
 const info=$('remoteStatus'),diag=$('remoteDebug'),tokenEl=$('remoteToken');
 try{tokenEl.value=sessionStorage.getItem('dailyShareAdminToken')||''}catch(e){}
@@ -186,39 +181,38 @@ function parseChurch(result){
   for(const item of entries){
    const post=item&&typeof item==='object'?(item.post||item.article||item):item;
    const body=typeof post==='string'?post:(recordText(post)||recordText(item));
-   if(!body||body.trim().length<15)continue;
    const link=recordLink(post)||recordLink(item);
+   if(!link&&(!body||body.trim().length<15))continue;
    const date=getDate(post)||getDate(item)||getDate(page);
-   posts.push({text:body.trim(),link,date});
+   posts.push({text:body?.trim()||'',link,date});
   }
  }
  const unique=[];
  for(const post of posts){
-  if(!unique.some(p=>post.link&&p.link===post.link||p.text===post.text))unique.push(post);
+  if(!unique.some(p=>post.link&&p.link===post.link||post.text&&p.text===post.text))unique.push(post);
  }
- return unique.slice(0,5);
+ return unique.slice(0,1);
 }
 function renderChurch(){
  const target=$('churchPosts');
  target.replaceChildren();
- $('churchCount').textContent=churchPosts.length?'已取得 '+churchPosts.length+' 篇':'尚未取得';
+ churchShareCheck.disabled=!churchPosts[0]?.link;
+ if(churchShareCheck.disabled)churchShareCheck.checked=false;
+ $('churchCount').textContent=churchPosts[0]?.link?'網址已取得':churchPosts.length?'缺少原始網址':'尚未取得';
+ updateSelection();
  if(!churchPosts.length){
   const empty=document.createElement('div');empty.className='church-notice';
   empty.textContent=churchIssue||'尚未取得東海靈糧堂的貼文。請先按「更新貼文」，若持續沒有資料請聯絡管理員。';
   target.append(empty);return;
  }
- churchPosts.forEach((post,index)=>{
+ churchPosts.forEach(post=>{
   const card=document.createElement('article');card.className='post';
   const heading=document.createElement('div');heading.className='post-head';
-  const name=document.createElement('strong');name.textContent='東海靈糧堂貼文 '+(index+1);
-  const pick=document.createElement('input');
-  pick.type='checkbox';pick.checked=pickedChurch.has(post);
-  pick.setAttribute('aria-label','一併分享'+name.textContent);
-  pick.onchange=()=>{if(pick.checked)pickedChurch.add(post);else pickedChurch.delete(post);updateSelection()};
-  heading.append(pick,name);
+  const name=document.createElement('strong');name.textContent='東海靈糧堂最新貼文';
+  heading.append(name);
   if(post.date){const date=document.createElement('span');date.className='church-date';date.textContent=post.date;heading.append(date)}
   card.append(heading);
-  const body=document.createElement('div');body.className='church-body';body.textContent=post.text;card.append(body);
+  const body=document.createElement('div');body.className='church-body';body.textContent=post.text||'可開啟原始貼文查看內容。';card.append(body);
   const actions=document.createElement('div');actions.className='church-actions';
   const expand=document.createElement('button');expand.type='button';expand.className='church-expand';expand.textContent='展開全文';
   expand.onclick=()=>{const open=body.classList.toggle('expanded');expand.textContent=open?'收合全文':'展開全文'};actions.append(expand);
@@ -227,10 +221,10 @@ function renderChurch(){
   }else{
    const notice=document.createElement('span');notice.className='source-note';notice.textContent='原文連結待確認';actions.append(notice);
   }
-  const copy=document.createElement('button');copy.type='button';copy.className='church-copy';copy.textContent='複製這一篇';
+  const copy=document.createElement('button');copy.type='button';copy.className='church-copy';copy.textContent='複製原始網址';copy.disabled=!post.link;
   copy.onclick=async()=>{
-   try{await navigator.clipboard.writeText(post.text);copy.textContent='✓ 已複製';setTimeout(()=>copy.textContent='複製這一篇',2200)}
-   catch(err){window.prompt('請手動複製以下文字：',post.text)}
+   try{await navigator.clipboard.writeText(post.link);copy.textContent='✓ 已複製';setTimeout(()=>copy.textContent='複製原始網址',2200)}
+   catch(err){window.prompt('請手動複製原始網址：',post.link)}
   };
   actions.append(copy);card.append(actions);target.append(card);
  });
@@ -251,10 +245,7 @@ function render(){
   const marker=document.createElement('span');marker.className='post-icon';marker.textContent=String(i+1);
   const title=document.createElement('span');title.className='post-name';title.textContent=source.label;
 
-  const pick=document.createElement('input');pick.type='checkbox';pick.className='post-select';pick.checked=selected[i];
-  pick.setAttribute('aria-label','選擇'+source.label);
-  pick.addEventListener('change',()=>{selected[i]=pick.checked;updateSelection();});
-  head.append(pick,marker,title);row.append(head);
+  head.append(marker,title);row.append(head);
   const body=document.createElement('div');body.className='post-preview';
   body.textContent=post?textWithHeader(post,source.title):'等待 B 電腦傳回真實貼文內容。';row.append(body);
   const actions=document.createElement('div');actions.className='post-actions';
@@ -269,15 +260,11 @@ function render(){
  updateSelection();
 }
 function updateSelection(){
- const n=selected.filter(Boolean).length;
- const all=n===3,none=n===0;
- $('groupCheck').checked=all;
- $('groupCheck').indeterminate=n>0&&!all;
- $('selectionCount').textContent='已選 '+n+' 篇';
- const ready=selected.every((enabled,i)=>!enabled||Boolean(collected[i]?.text));
- $('directPrayerCopy').disabled=(none&&!pickedChurch.size)||!ready||working;
+ const prayerCount=collected.filter(post=>post?.text).length;
+ const hasContent=(prayerShareCheck.checked&&prayerCount>0)||(churchShareCheck.checked&&Boolean(churchPosts[0]?.link));
+ $('directPrayerCopy').disabled=!hasContent||working;
+ $('prayerCopyStatus').textContent=hasContent?'可以複製已勾選的禱告或教會網址。':'勾選禱告三合一或教會原始貼文網址後，即可複製。';
  document.dispatchEvent(new Event('upper-share-change'));
- $('prayerCopyStatus').textContent=none&&!pickedChurch.size?'請先勾選至少一篇文章。':!ready?'選取的文章尚未全部更新，請先更新貼文。':'已選 '+(n+pickedChurch.size)+' 篇，確認原文後按「複製貼文」。';
 }
 function setBusy(b){working=b;$('remoteRead').disabled=b;$('remoteLast').disabled=b;updateSelection()}
 async function call(path,method='GET'){
@@ -301,7 +288,7 @@ function acceptState(state,onlyMatching){
  // Preserve successfully read prayer posts instead of discarding the whole batch.
  const extracted=parseResult(item.result);
  collected=extracted.mapped;
- pickedChurch.clear();
+ churchShareCheck.checked=false;
  churchPosts=parseChurch(item.result);
  const churchPage=item.result.pages.find(p=>String(p.sourceUrl||p.pageUrl||'').includes('thll24615088')||String(p.pageName||'').includes('東海靈糧堂'));
  churchIssue=churchPage?.error
@@ -319,7 +306,7 @@ function acceptState(state,onlyMatching){
 }
 $('remoteRead').onclick=async()=>{
  if(working)return;
- clearInterval(poller);requestId=null;collected=[null,null,null];pickedChurch.clear();churchPosts=[];churchIssue='';render();renderChurch();setBusy(true);
+ clearInterval(poller);requestId=null;collected=[null,null,null];churchShareCheck.checked=false;churchPosts=[];churchIssue='';render();renderChurch();setBusy(true);
  status('正在更新貼文，請稍候…');
  try{
   const sent=await call('/api/read-request','POST');
@@ -346,28 +333,29 @@ $('remoteLast').onclick=async()=>{
  finally{setBusy(false)}
 };
 $('directPrayerCopy').onclick=async()=>{
- const indices=selected.map((yes,i)=>yes?i:-1).filter(i=>i>=0);
- if(!indices.length&&!pickedChurch.size){status('請先勾選要分享的文章。',true);return}
- if(indices.some(i=>!collected[i]?.text)){status('所選文章尚未更新，請先按「更新貼文」。',true);return}
- const data=[...indices.map(i=>textWithHeader(collected[i],sources[i].title)),...churchPosts.filter(post=>pickedChurch.has(post)).map(post=>post.text)].join('\n\n');
- try{await navigator.clipboard.writeText(data);$('prayerCopyStatus').textContent='✓ 已複製 '+(indices.length+pickedChurch.size)+' 篇文章，請到 LINE 貼上。'}
+ const {prayer,church}=upperShare.get();
+ const data=[prayer,church].filter(Boolean).join('\n\n');
+ if(!data)return;
+ try{await navigator.clipboard.writeText(data);$('prayerCopyStatus').textContent='✓ 已複製勾選的內容，可貼到 LINE。'}
  catch(e){window.prompt('請手動複製以下文字：',data)}
 };
-$('groupCheck').addEventListener('change',()=>{selected=[true,true,true].map(()=> $('groupCheck').checked);render();});
+prayerShareCheck.addEventListener('change',updateSelection);
+churchShareCheck.addEventListener('change',updateSelection);
 render();
 renderChurch();
 return {
- get(includePrayer){
-  const indices=sources.map((_,i)=>i).filter(i=>includePrayer&&selected[i]);
+ get(){
+  const indices=prayerShareCheck.checked?sources.map((_,i)=>i):[];
   const prayer=indices.filter(i=>collected[i]?.text).map(i=>textWithHeader(collected[i],sources[i].title)).join('\n\n');
-  const church=churchPosts.filter(post=>pickedChurch.has(post)).map(post=>post.text).join('\n\n');
+  const church=churchShareCheck.checked?churchPosts[0]?.link||'':'';
   return {prayer,church,missing:indices.filter(i=>!collected[i]?.text).map(i=>sources[i].label)};
  },
- save(){return {selected,collected,churchPosts,churchIndices:churchPosts.flatMap((post,i)=>pickedChurch.has(post)?[i]:[])}},
+ save(){return {prayerChecked:prayerShareCheck.checked,churchChecked:churchShareCheck.checked,collected,churchPosts}},
  restore(saved){
-  selected=saved.selected;collected=saved.collected;churchPosts=saved.churchPosts;
-  pickedChurch.clear();
-  for(const i of saved.churchIndices)if(churchPosts[i])pickedChurch.add(churchPosts[i]);
+  if(!Array.isArray(saved.collected)||!Array.isArray(saved.churchPosts))return;
+  collected=saved.collected;churchPosts=saved.churchPosts;
+  prayerShareCheck.checked=Boolean(saved.prayerChecked);
+  churchShareCheck.checked=Boolean(saved.churchChecked);
   render();renderChurch();
  }
 };
@@ -381,10 +369,8 @@ const $=s=>document.getElementById(s);
 async function copy(value,target){try{await navigator.clipboard.writeText(value);target.textContent='已複製 ✓';setTimeout(()=>target.textContent='複製這一篇',2000)}catch(e){window.prompt('請手動複製文字',value)}}
 const sources=[{key:'stream',name:'荒漠甘泉',url:'https://www.fhl.net/stream/'},{key:'manna',name:'每日天糧',url:'https://biblepro.app/cbook/ym-tw-mrtl/catalog.html'},{key:'bible',name:'東海靈糧堂每日讀經',url:'https://win.thll.org.tw/Bible/'}];
 function node(t,cls,txt){const e=document.createElement(t);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
-const dailySelectAll=$('dailySelectAll');
 const dailyChoices=new Map();
 const dailyShareLine=$('dailyShareLine');
-const includePrayer=$('includePrayerInLine');
 const dailyLineStatus=$('dailyLineStatus');
 const liffId=document.querySelector('meta[name="daily-share-liff-id"]').content.trim();
 const lineRestoreKey='dailyShareLineSelection';
@@ -394,30 +380,21 @@ let sharingLine=false;
 function syncDailySelection(){
  const available=[...dailyChoices.values()];
  const count=available.filter(choice=>choice.checkbox.checked).length;
- dailySelectAll.disabled=available.length===0;
- dailySelectAll.checked=count>0&&count===available.length;
- dailySelectAll.indeterminate=count>0&&count<available.length;
- const {prayer,church,missing}=upperShare.get(includePrayer.checked);
+ const {prayer,church,missing}=upperShare.get();
  const prayerCount=Number(Boolean(prayer)),churchCount=Number(Boolean(church));
  const total=count+prayerCount+churchCount;
  dailyShareLine.disabled=!lineReady||sharingLine||total===0;
  $('lineShareSummary').textContent='預計分享 '+total+' 則（禱告 '+prayerCount+'、教會貼文 '+churchCount+'、每日文章 '+count+'）。'+(missing.length?'尚未取得，將略過：'+missing.join('、')+'。':'');
- $('dailySelectionCount').textContent='已選 '+count+' 篇';
 }
 
-includePrayer.addEventListener('change',syncDailySelection);
 document.addEventListener('upper-share-change',syncDailySelection);
-dailySelectAll.addEventListener('change',()=>{
- for(const choice of dailyChoices.values()) choice.checkbox.checked=dailySelectAll.checked;
- syncDailySelection();
-});
 
 
 dailyShareLine.addEventListener('click',async()=>{
  if(!lineReady||sharingLine)return;
  const choices=[...dailyChoices.values()].filter(item=>item.checkbox.checked);
  const date=$('articleDate').value;
- const {prayer,church}=upperShare.get(includePrayer.checked);
+ const {prayer,church}=upperShare.get();
  const articles=[];
  if(prayer)articles.push({name:'禱告文章合輯',text:prayer});
  if(church)articles.push({name:'東海靈糧堂貼文',text:church});
@@ -434,7 +411,7 @@ dailyShareLine.addEventListener('click',async()=>{
  syncDailySelection();
  try{
   if(!window.liff.isLoggedIn()){
-   sessionStorage.setItem(lineRestoreKey,JSON.stringify({date,keys:choices.map(choice=>choice.checkbox.value),includePrayer:includePrayer.checked,upper:prayer||church?upperShare.save():null}));
+   sessionStorage.setItem(lineRestoreKey,JSON.stringify({date,keys:choices.map(choice=>choice.checkbox.value),upper:upperShare.save()}));
    dailyLineStatus.textContent='請先登入 LINE。';
    window.liff.login({redirectUri:location.origin+location.pathname});
    return;
@@ -477,7 +454,6 @@ async function initializeLineShare(){
   sessionStorage.removeItem(lineRestoreKey);
   if(!saved||!/^\d{4}-\d{2}-\d{2}$/.test(saved.date)||!Array.isArray(saved.keys))return;
   $('articleDate').value=saved.date;
-  includePrayer.checked=Boolean(saved.includePrayer);
   if(saved.upper)upperShare.restore(saved.upper);
   if(saved.keys.length)await lookupDailyArticles(saved.keys);
   syncDailySelection();
@@ -498,7 +474,7 @@ function show(items,selectedKeys){
  checkbox.type='checkbox';
  checkbox.value=s.key;
  checkbox.disabled=!text;
- checkbox.checked=Boolean(text)&&(!selectedKeys||selectedKeys.includes(s.key));
+ checkbox.checked=Boolean(text)&&Boolean(selectedKeys?.includes(s.key));
  checkbox.addEventListener('change',syncDailySelection);
  label.append(checkbox,node('h3',null,s.name));
  inner.append(label);
